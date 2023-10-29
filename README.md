@@ -1,2 +1,2 @@
-# 2DGP_TermProject
- 
+# Drill10
+ 2020182028 이규원
