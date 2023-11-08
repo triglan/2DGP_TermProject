@@ -1,33 +1,80 @@
-#게임월드 모듈
+objects = [[] for _ in range(4)]
 
-#게임월드 표현
+# fill here
+# 충돌 그룹 정보를 dictionary로 표현.
+collision_pairs = {} # { 'boy:ball' : [ [boy], [ball1, ball2, ...] }
 
-world = [ [], [], [], [] ]
+def add_object(o, depth = 0):
+    objects[depth].append(o)
 
-#게임 월드에 객체 담기
-
-def add_object(o,  depth = 0):
-    world[depth].append(o) # 지정된 깊이의 레이어에 객체 추가
+def add_objects(ol, depth = 0):
+    objects[depth] += ol
 
 
-#게임 월드 객체들을 몽땅 업데이트
 def update():
-    for layer in world:
+    for layer in objects:
         for o in layer:
             o.update()
 
 
-#게임 월드의 객체들을 몽땅 그리기
 def render():
-    for layer in world:
+    for layer in objects:
         for o in layer:
             o.draw()
 
+# fill here
+def add_collision_pair(group, a, b): # add collision_pair('boy:ball', None, ball)
+    if group not in collision_pairs: # dictionary에 key group이 존재하지 않는다면
+        print(f'New group {group} added')
+        collision_pairs[group] = [ [], [] ] #a, b가 있는 리스트로 초기화
+    if a:
+        collision_pairs[group][0].append(a)
+    if b:
+       collision_pairs[group][1].append(b)
 
-#객체 삭제
+
+def remove_collision_object(o):
+    for pairs in collision_pairs.values():
+        if o in pairs[0]:
+            pairs[0].remove(o)
+        if o in pairs[1]:
+            pairs[1].remove(o)
+    pass
+
+
 def remove_object(o):
-    for layer in world:
+    for layer in objects:
         if o in layer:
             layer.remove(o)
+            remove_collision_object(o)
+            del o
             return
-    raise ValueError('Failed to remove : not exist in list')
+    raise ValueError('Cannot delete non existing object')
+
+
+def clear():
+    for layer in objects:
+        layer.clear()
+
+
+
+# fill here. 충돌검사
+def collide(a, b):
+    la, ba, ra, ta = a.get_bb()
+    lb, bb, rb, tb = b.get_bb()
+
+    if la > rb: return False
+    if ra < lb: return False
+    if ta < bb: return False
+    if ba > tb: return False
+
+    return True
+
+
+def handle_collisions(): # a 그룹 b 그룹의 충돌 검사
+    for group, pairs in collision_pairs.items():
+        for a in pairs[0]:
+            for b in pairs[1]:
+                if collide(a, b):
+                    a.handle_collision(group, b)
+                    b.handle_collision(group, a)
