@@ -5,6 +5,8 @@ from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYU
 from ball import Ball
 import game_world
 import game_framework
+from racket import Racket
+
 
 # state event check
 # ( state event type, event value )
@@ -73,7 +75,7 @@ class Idle:
     @staticmethod
     def exit(boy, e):
         if space_down(e):
-            boy.fire_ball()
+            boy.swing()
         pass
 
     @staticmethod
@@ -100,7 +102,7 @@ class Run:
     @staticmethod
     def exit(boy, e):
         if space_down(e):
-            boy.fire_ball()
+            boy.swing()
 
         pass
 
@@ -118,40 +120,14 @@ class Run:
 
 
 
-class Sleep:
-
-    @staticmethod
-    def enter(boy, e):
-        boy.frame = 0
-        pass
-
-    @staticmethod
-    def exit(boy, e):
-        pass
-
-    @staticmethod
-    def do(boy):
-        boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
-
-
-    @staticmethod
-    def draw(boy):
-        if boy.face_dir == -1:
-            boy.image.clip_composite_draw(int(boy.frame) * 100, 200, 100, 100,
-                                          -3.141592 / 2, '', boy.x + 25, boy.y - 25, 100, 100)
-        else:
-            boy.image.clip_composite_draw(int(boy.frame) * 100, 300, 100, 100,
-                                          3.141592 / 2, '', boy.x - 25, boy.y - 25, 100, 100)
-
 
 class StateMachine:
     def __init__(self, boy):
         self.boy = boy
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Sleep, space_down: Idle},
+            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Idle},
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Run},
-            Sleep: {right_down: Run, left_down: Run, right_up: Run, left_up: Run}
         }
 
     def start(self):
@@ -191,11 +167,11 @@ class Boy:
         self.ball_count = 10
 
 
-    def fire_ball(self):
+    def swing(self):
         if self.ball_count > 0:
             self.ball_count -= 1
-            ball = Ball(self.x, self.y, self.face_dir*10)
-            game_world.add_object(ball)
+            racket = Racket(self.x, self.y, self.face_dir*10)
+            game_world.add_object(racket)
 
     def update(self):
         self.state_machine.update()

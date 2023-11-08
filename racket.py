@@ -2,12 +2,12 @@ from pico2d import *
 import game_world
 import game_framework
 
-class Ball:
+class Racket:
     image = None
 
     def __init__(self, x = 400, y = 300, velocity = 1):
-        if Ball.image == None:
-            Ball.image = load_image('temp/ball21x21.png')
+        if Racket.image == None:
+            Racket.image = load_image('Resource/racket1.png')
         self.x, self.y, self.velocity = x, y, velocity
 
     def draw(self):
