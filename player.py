@@ -179,7 +179,7 @@ class StateMachine:
 
 class Boy:
     def __init__(self):
-        self.x, self.y = 200, 150
+        self.x, self.y = 50, 90
         self.frame = 0
         self.action = 3
         self.face_dir = 1
@@ -196,6 +196,7 @@ class Boy:
             self.ball_count -= 1
             ball = Ball(self.x, self.y, self.face_dir*10)
             game_world.add_object(ball)
+            game_world.add_collision_pair('zombie:ball', None, ball)  # zombie - boy
 
     def update(self):
         self.state_machine.update()
@@ -213,4 +214,7 @@ class Boy:
         return self.x - 20,  self.y - 50, self.x + 20,  self.y + 50
 
     def handle_collision(self, group, other):
-        pass
+        if group == 'boy:ball':
+            self.ball_count += 1
+        if group == 'boy:zombie':
+            game_framework.quit()

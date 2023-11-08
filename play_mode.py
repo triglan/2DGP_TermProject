@@ -7,7 +7,6 @@ import game_world
 from grass import Grass
 from boy import Boy
 from ball import Ball
-from zombie import Zombie
 
 # boy = None
 
@@ -33,27 +32,9 @@ def init():
 
     boy = Boy()
     game_world.add_object(boy, 1)
-    game_world.add_collision_pair('boy:ball', boy, None) #ball을 모르니까
 
 
-    # fill here
-    # 공을 30개 바닥에 뿌린다
-    balls = [Ball(random.randint(100, 1500), 60, 0) for _ in range(30)]
-    game_world.add_objects(balls, 1)
 
-    for ball in balls:
-        game_world.add_collision_pair('boy:ball', None, ball) # a그룹에 이미 boy가 들어가있으니까
-
-
-    zombies = [Zombie() for _ in range(5)]
-    game_world.add_objects(zombies, 1)
-
-    for zombie in zombies:
-        game_world.add_collision_pair('zombie:ball', zombie, None)  # zombie - boy
-
-    game_world.add_collision_pair('boy:zombie', boy, None)  # zombie - boy
-    for zombie in zombies:
-        game_world.add_collision_pair('boy:zombie', None, zombie)  # zombie - boy
 
 
 def finish():
