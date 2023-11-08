@@ -170,7 +170,7 @@ class Boy:
     def swing(self):
         if self.ball_count > 0:
             self.ball_count -= 1
-            racket = Racket(self.x, self.y, self.face_dir*10)
+            racket = Racket(self.x, self.y + 30, -90)
             game_world.add_object(racket)
 
     def update(self):
