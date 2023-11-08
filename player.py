@@ -179,12 +179,12 @@ class StateMachine:
 
 class Boy:
     def __init__(self):
-        self.x, self.y = 50, 90
+        self.x, self.y = 200, 150
         self.frame = 0
         self.action = 3
         self.face_dir = 1
         self.dir = 0
-        self.image = load_image('animation_sheet.png')
+        self.image = load_image('temp/animation_sheet.png')
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
@@ -196,7 +196,6 @@ class Boy:
             self.ball_count -= 1
             ball = Ball(self.x, self.y, self.face_dir*10)
             game_world.add_object(ball)
-            game_world.add_collision_pair('zombie:ball', None, ball)  # zombie - boy
 
     def update(self):
         self.state_machine.update()
@@ -206,15 +205,12 @@ class Boy:
 
     def draw(self):
         self.state_machine.draw()
-        self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0))
-        draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공
+        #self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0)) # 볼개수
+        # draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공 충돌체
 
     # fill here
     def get_bb(self):#bounding box
         return self.x - 20,  self.y - 50, self.x + 20,  self.y + 50
 
     def handle_collision(self, group, other):
-        if group == 'boy:ball':
-            self.ball_count += 1
-        if group == 'boy:zombie':
-            game_framework.quit()
+        pass
