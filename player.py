@@ -68,7 +68,8 @@ class Idle:
         elif boy.face_dir == 1:
             boy.action = 3
         boy.dir = 0
-        boy.frame = 0
+        boy.walking_frame = 0
+        boy.idle_frame = 0
         boy.wait_time = get_time() # pico2d import 필요
         pass
 
@@ -80,13 +81,16 @@ class Idle:
 
     @staticmethod
     def do(boy):
-        boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
+        boy.idle_frame = (boy.idle_frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         if get_time() - boy.wait_time > 2:
             boy.state_machine.handle_event(('TIME_OUT', 0))
 
     @staticmethod
     def draw(boy):
-        boy.image.clip_draw(int(boy.frame) * 100, boy.action * 100, 100, 100, boy.x, boy.y)
+        if boy.face_dir == -1:
+            boy.idle_image.clip_composite_draw(int(boy.idle_frame) * 20, 0, 20, 25, 0, 'h', boy.x, boy.y, 80, 80)
+        else:
+            boy.idle_image.clip_composite_draw(int(boy.idle_frame) * 20, 0, 20, 25, 0, '', boy.x, boy.y, 80, 80)
 
 
 
@@ -108,16 +112,17 @@ class Run:
 
     @staticmethod
     def do(boy):
-        # boy.frame = (boy.frame + 1) % 8
         boy.x += boy.dir * RUN_SPEED_PPS * game_framework.frame_time
         boy.x = clamp(25, boy.x, 1600-25)
-        boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        boy.walking_frame = (boy.walking_frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
 
 
     @staticmethod
     def draw(boy):
-        #boy.image.clip_draw(int(boy.frame) * 100, boy.action * 100, 100, 100, boy.x, boy.y)
-        boy.image.clip_draw(int(boy.frame) * 22, 0, 22, 25, boy.x, boy.y)
+        if boy.face_dir == -1:
+            boy.walking_image.clip_composite_draw(int(boy.walking_frame) * 22, 0, 22, 25, 0, 'h', boy.x, boy.y, 80, 80)
+        else:
+            boy.walking_image.clip_composite_draw(int(boy.walking_frame) * 22, 0, 22, 25, 0, '', boy.x, boy.y, 80, 80)
 
 
 
@@ -157,11 +162,13 @@ class StateMachine:
 class Boy:
     def __init__(self):
         self.x, self.y = 200, 150
-        self.frame = 0
+        self.walking_frame = 0
+        self.idle_frame = 0
         self.action = 3
         self.face_dir = 1
         self.dir = 0
-        self.image = load_image('Resource/mario_walking.png')
+        self.walking_image = load_image('Resource/mario_walking.png')
+        self.idle_image = load_image('Resource/mario_Idle.png')
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
