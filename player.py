@@ -111,12 +111,13 @@ class Run:
         # boy.frame = (boy.frame + 1) % 8
         boy.x += boy.dir * RUN_SPEED_PPS * game_framework.frame_time
         boy.x = clamp(25, boy.x, 1600-25)
-        boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
+        boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
 
 
     @staticmethod
     def draw(boy):
-        boy.image.clip_draw(int(boy.frame) * 100, boy.action * 100, 100, 100, boy.x, boy.y)
+        #boy.image.clip_draw(int(boy.frame) * 100, boy.action * 100, 100, 100, boy.x, boy.y)
+        boy.image.clip_draw(int(boy.frame) * 22, 0, 22, 25, boy.x, boy.y)
 
 
 
@@ -160,7 +161,7 @@ class Boy:
         self.action = 3
         self.face_dir = 1
         self.dir = 0
-        self.image = load_image('temp/animation_sheet.png')
+        self.image = load_image('Resource/mario_walking.png')
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
