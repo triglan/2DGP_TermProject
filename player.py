@@ -125,15 +125,44 @@ class Run:
             boy.walking_image.clip_composite_draw(int(boy.walking_frame) * 22, 0, 22, 25, 0, '', boy.x, boy.y, 80, 80)
 
 
+class Swing:#수정해
 
+    @staticmethod
+    def enter(boy, e):
+        if right_down(e) or left_up(e): # 오른쪽으로 RUN
+            boy.dir, boy.action, boy.face_dir = 1, 1, 1
+        elif left_down(e) or right_up(e): # 왼쪽으로 RUN
+            boy.dir, boy.action, boy.face_dir = -1, 0, -1
+
+    @staticmethod
+    def exit(boy, e):
+        if space_down(e):
+            boy.swing()
+
+        pass
+
+    @staticmethod
+    def do(boy):
+        boy.x += boy.dir * RUN_SPEED_PPS * game_framework.frame_time
+        boy.x = clamp(25, boy.x, 1600-25)
+        boy.walking_frame = (boy.walking_frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+
+
+    @staticmethod
+    def draw(boy):
+        if boy.face_dir == -1:
+            boy.walking_image.clip_composite_draw(int(boy.walking_frame) * 22, 0, 22, 25, 0, 'h', boy.x, boy.y, 80, 80)
+        else:
+            boy.walking_image.clip_composite_draw(int(boy.walking_frame) * 22, 0, 22, 25, 0, '', boy.x, boy.y, 80, 80)
 
 class StateMachine:
     def __init__(self, boy):
         self.boy = boy
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Idle},
-            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Run},
+            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Swing},
+            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Swing},
+            Swing: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Run},
         }
 
     def start(self):
