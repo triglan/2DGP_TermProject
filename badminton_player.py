@@ -52,28 +52,22 @@ FRAMES_PER_ACTION = 8
 
 class Idle:
     @staticmethod
-    def enter(boy, e):
-        if boy.face_dir == -1:
-            boy.action = 2
-        elif boy.face_dir == 1:
-            boy.action = 3
-        boy.dir = 0
-        boy.frame = 0
+    def enter(player, e):
+        player.dir = 0
+        player.frame = 0
         #boy.idle_frame = 0
-        boy.wait_time = get_time() # pico2d import 필요
+        player.wait_time = get_time() # pico2d import 필요
         pass
 
     @staticmethod
-    def exit(boy, e):
-        if space_down(e):
-            boy.swing()
+    def exit(player, e):
         pass
 
     @staticmethod
-    def do(boy):
-        boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-        if get_time() - boy.wait_time > 2:
-            boy.state_machine.handle_event(('TIME_OUT', 0))
+    def do(player):
+        player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        if get_time() - player.wait_time > 2:
+            player.state_machine.handle_event(('TIME_OUT', 0))
 
     @staticmethod
     def draw(boy):
@@ -88,21 +82,19 @@ class Run:
     @staticmethod
     def enter(boy, e):
         if right_down(e) or left_up(e): # 오른쪽으로 RUN
-            boy.dir, boy.action, boy.face_dir = 1, 1, 1
+            boy.dir,  boy.face_dir = 1, 1
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-            boy.dir, boy.action, boy.face_dir = -1, 0, -1
+            boy.dir,  boy.face_dir = -1, -1
 
     @staticmethod
     def exit(boy, e):
-        if space_down(e):
-            boy.swing()
-
+        #boy.dir = 0
         pass
 
     @staticmethod
     def do(boy):
         boy.x += boy.dir * RUN_SPEED_PPS * game_framework.frame_time
-        boy.x = clamp(25, boy.x, 1600-25)
+        boy.x = clamp(25, boy.x, 500-25)
         boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
 
 
@@ -118,13 +110,15 @@ class Swing:#수정해
     @staticmethod
     def enter(boy, e):
         if right_down(e) or left_up(e):  # 오른쪽으로 RUN
-            boy.dir, boy.action, boy.face_dir = 1, 1, 1
+            boy.dir, boy.face_dir = 1, 1
         elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
-            boy.dir, boy.action, boy.face_dir = -1, 0, -1
+            boy.dir, boy.face_dir = -1, -1
 
     @staticmethod
     def exit(boy, e):
         pass
+
+
 
     @staticmethod
     def do(boy):
@@ -145,7 +139,7 @@ class StateMachine:
         self.transitions = {
             Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Swing},
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Swing},
-            Swing: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Swing, time_out: Idle},
+            Swing: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Idle},
         }
 
     def start(self):
@@ -175,7 +169,6 @@ class Badminton_player:
     def __init__(self):
         self.x, self.y = 200, 150
         self.frame = 0
-        self.action = 3
         self.face_dir = 1
         self.dir = 0
         self.walking_image = load_image('Resource/mario_walking.png')
@@ -184,7 +177,7 @@ class Badminton_player:
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
-        self.ball_count = 10
+        self.round_start = True
 
 
 
@@ -203,7 +196,7 @@ class Badminton_player:
 
     def draw(self):
         self.state_machine.draw()
-        self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0)) # 볼개수
+        #self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0)) # 글자 출력
         draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공 충돌체
 
     # fill here
