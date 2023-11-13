@@ -32,6 +32,9 @@ def space_down(e):
 def time_out(e):
     return e[0] == 'TIME_OUT'
 
+def time_out_while_running(e):
+    return e[0] == 'TIME_OUT_WHILE_RUNNING'
+
 # time_out = lambda e : e[0] == 'TIME_OUT'
 
 
@@ -49,13 +52,15 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
+PLAYER_WID = 50
+PLAYER_HEI = 100
+
 
 class Idle:
     @staticmethod
     def enter(player, e):
         player.dir = 0
         player.frame = 0
-        #boy.idle_frame = 0
         player.wait_time = get_time() # pico2d import 필요
         pass
 
@@ -72,19 +77,24 @@ class Idle:
     @staticmethod
     def draw(boy):
         if boy.face_dir == -1:
-            boy.idle_image.clip_composite_draw(int(boy.frame) * 20, 0, 20, 25, 0, 'h', boy.x, boy.y, 80, 80)
+            boy.idle_image.clip_composite_draw(int(boy.frame) * 20, 0, 20, 25, 0, 'h', boy.x, boy.y, PLAYER_WID, PLAYER_HEI)
         else:
-            boy.idle_image.clip_composite_draw(int(boy.frame) * 20, 0, 20, 25, 0, '', boy.x, boy.y, 80, 80)
+            boy.idle_image.clip_composite_draw(int(boy.frame) * 20, 0, 20, 25, 0, '', boy.x, boy.y, PLAYER_WID, PLAYER_HEI)
 
 
 
 class Run:
     @staticmethod
     def enter(boy, e):
+        if dir == 0 and (left_up(e) or right_up(e)):
+            boy.state_machine.handle_event(('TIME_OUT', 0))
+            print(f'comein')
+
         if right_down(e) or left_up(e): # 오른쪽으로 RUN
             boy.dir,  boy.face_dir = 1, 1
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
             boy.dir,  boy.face_dir = -1, -1
+            print(f'whyhere')
 
     @staticmethod
     def exit(boy, e):
@@ -101,18 +111,20 @@ class Run:
     @staticmethod
     def draw(boy):
         if boy.face_dir == -1:
-            boy.walking_image.clip_composite_draw(int(boy.frame) * 22, 0, 22, 25, 0, 'h', boy.x, boy.y, 80, 80)
+            boy.walking_image.clip_composite_draw(int(boy.frame) * 22, 0, 22, 25, 0, 'h', boy.x, boy.y, PLAYER_WID, PLAYER_HEI)
         else:
-            boy.walking_image.clip_composite_draw(int(boy.frame) * 22, 0, 22, 25, 0, '', boy.x, boy.y, 80, 80)
+            boy.walking_image.clip_composite_draw(int(boy.frame) * 22, 0, 22, 25, 0, '', boy.x, boy.y, PLAYER_WID, PLAYER_HEI)
 
 
-class Swing:#수정해
+class Swing:
     @staticmethod
     def enter(boy, e):
-        if right_down(e) or left_up(e):  # 오른쪽으로 RUN
-            boy.dir, boy.face_dir = 1, 1
-        elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
-            boy.dir, boy.face_dir = -1, -1
+        if right_down(e) or left_up(e): # 오른쪽으로 RUN
+            boy.dir,  boy.face_dir = 1, 1
+        elif left_down(e) or right_up(e): # 왼쪽으로 RUN
+            boy.dir,  boy.face_dir = -1, -1
+        boy.frame = 0
+        pass
 
     @staticmethod
     def exit(boy, e):
@@ -124,13 +136,19 @@ class Swing:#수정해
     def do(boy):
         boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time / 5) % 4#너무 빨라서 애니메이션 재생 느리게 함
         if boy.frame >= 3:
-            boy.state_machine.handle_event(('TIME_OUT', 0))  # 혹은 다른 이벤트 처리 가능
+            if boy.dir == 1:
+                boy.state_machine.handle_event(('TIME_OUT_WHILE_RUNNING', 0))  # 오른쪽으로 달리기
+            elif boy.dir == -1:
+                boy.state_machine.handle_event(('TIME_OUT_WHILE_RUNNING', 0))  # 왼쪽으로 달리기
+            else:
+                boy.state_machine.handle_event(('TIME_OUT', 0))  # Idle 상태로 전환
+
     @staticmethod
     def draw(boy):
         if boy.face_dir == -1:
-            boy.swing_image.clip_composite_draw(int(boy.frame) * 21, 0, 21, 25, 0, 'h', boy.x, boy.y, 80, 80)
+            boy.swing_image.clip_composite_draw(int(boy.frame) * 21, 0, 21, 25, 0, 'h', boy.x, boy.y, PLAYER_WID, PLAYER_HEI)
         else:
-            boy.swing_image.clip_composite_draw(int(boy.frame) * 21, 0, 21, 25, 0, '', boy.x, boy.y, 80, 80)
+            boy.swing_image.clip_composite_draw(int(boy.frame) * 21, 0, 21, 25, 0, '', boy.x, boy.y, PLAYER_WID, PLAYER_HEI)
 
 class StateMachine:
     def __init__(self, boy):
@@ -139,7 +157,7 @@ class StateMachine:
         self.transitions = {
             Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Swing},
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Swing},
-            Swing: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Idle},
+            Swing: {right_down: Swing, left_down: Swing, left_up: Swing, right_up: Swing, time_out: Idle, time_out_while_running: Run},
         }
 
     def start(self):
@@ -201,7 +219,7 @@ class Badminton_player:
 
     # fill here
     def get_bb(self):#bounding box
-        return self.x - 20,  self.y - 50, self.x + 20,  self.y + 50
+        return self.x,  self.y - 30, self.x + 50,  self.y + 30
 
     def handle_collision(self, group, other):
         pass
