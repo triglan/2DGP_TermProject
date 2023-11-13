@@ -5,6 +5,8 @@ from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYU
 from ball import Ball
 import game_world
 import game_framework
+import config
+
 from racket import Racket
 
 
@@ -66,7 +68,6 @@ class Idle:
         player.frame = 0
         player.wait_time = get_time() # pico2d import 필요
         if l_down(e):
-            player.isServed = True
             ball = Ball(900, 100, 300, 135, -1)
             game_world.add_object(ball)
             game_world.add_collision_pair('player:ball', None, ball)
@@ -129,6 +130,7 @@ class Swing:
         if left_up(e) or right_up(e):
             player.dir = 0
         player.frame = 0
+        player.swinging = True
         pass
 
     @staticmethod
@@ -139,12 +141,14 @@ class Swing:
     def do(player):
         player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time / 5) % 4#너무 빨라서 애니메이션 재생 느리게 함
         if player.frame >= 3:
+            player.swinging = False
             if player.dir == 1:
                 player.state_machine.handle_event(('TIME_OUT_WHILE_RUNNING', 0))  # 오른쪽으로 달리기
             elif player.dir == -1:
                 player.state_machine.handle_event(('TIME_OUT_WHILE_RUNNING', 0))  # 왼쪽으로 달리기
             else:
                 player.state_machine.handle_event(('TIME_OUT', 0))  # Idle 상태로 전환
+        print(f'{player.swinging}')
 
     @staticmethod
     def draw(player):
@@ -199,19 +203,28 @@ class Badminton_player:
         self.state_machine = StateMachine(self)
         self.state_machine.start()
         self.isServed = False
+        self.isServedCool = False
+        self.cooldown = 0.0
+        self.swinging = False
 
 
 
     def swing(self):
         pass
         if not self.isServed:
-            self.isServed = True
+            self.isServedCool = True
+            self.cooldown = 0.0
             ball = Ball(self.x, self.y, self.face_dir * 300)
             game_world.add_object(ball)
             game_world.add_collision_pair('player:ball', None, ball)
 
     def update(self):
         self.state_machine.update()
+        if self.isServedCool:
+            self.cooldown += game_framework.frame_time
+            if self.cooldown > 1:
+                self.isServed = True
+
 
     def handle_event(self, event):
         self.state_machine.handle_event(('INPUT', event))
@@ -227,4 +240,6 @@ class Badminton_player:
 
     def handle_collision(self, group, other):
         if group == 'player:ball':
-            print('충돌함')
+            if self.isServed and self.swinging:
+                config.change_ball_dir = True
+                print('충돌함')

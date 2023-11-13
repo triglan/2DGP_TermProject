@@ -1,7 +1,10 @@
 from pico2d import *
+
+import config
 import game_world
 import game_framework
-import config
+from config import change_ball_dir
+
 BALL_WID = 30
 BALL_HEI = 30
 class Ball:
@@ -10,7 +13,7 @@ class Ball:
         if Ball.image == None:
             Ball.image = load_image('Resource/badminton_ball.png')
         self.x, self.y, self.velocity, self.angle = x, y, velocity, angle
-        self.x0, self.y0 = x, y
+        self.can_change_dir = False
         self.dir = dir
         #dir 1일 시 우측, -1일시 좌측으로
         #우측일시 angle은 [90, -90], 좌측 이동시 [90, 270]
@@ -32,7 +35,7 @@ class Ball:
             self.angle += 0.1
 
         if self.x > 1000 - 25 or self.x < 25: # 벽과 충돌 시
-            self.change_direction()
+            self.change_direction(180 - self.angle, -self.dir)
             print(self.angle)
 
         if self.y < 100:#땅에 부딪치면 삭제
@@ -46,10 +49,15 @@ class Ball:
 
     def handle_collision(self, group, other):
         if group == 'player:ball':
-            pass
-            #self.change_direction()
+            if config.change_ball_dir:
+                if self.angle > 90:
+                    self.change_direction(self.angle - 180, 1)
+                else:
+                    self.change_direction(180 - self.angle, -1)
+                change_ball_dir = False
 
-    def change_direction(self):
-        self.angle = 180 - self.angle
-        self.dir *= -1
+
+    def change_direction(self, angle, dir):
+        self.angle = angle
+        self.dir = dir
         print(f'turn back')
