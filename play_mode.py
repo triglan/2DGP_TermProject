@@ -5,7 +5,7 @@ import game_framework
 
 import game_world
 from background import Grass
-from player import Boy
+from badminton_player import Badminton_player
 from ball import Ball
 
 # boy = None
@@ -30,7 +30,7 @@ def init():
     grass = Grass()
     game_world.add_object(grass, 0)
 
-    boy = Boy()
+    boy = Badminton_player()
     game_world.add_object(boy, 1)
 
 
