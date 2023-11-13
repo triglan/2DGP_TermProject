@@ -7,10 +7,11 @@ BALL_HEI = 30
 class Ball:
     image = None
 
-    def __init__(self, x = 400, y = 300, velocity = 300):
+    def __init__(self, x = 400, y = 300, velocity = 300, angle = 45.0):
         if Ball.image == None:
             Ball.image = load_image('Resource/badminton_ball.png')
-        self.x, self.y, self.velocity = x, y, velocity
+        self.x, self.y, self.velocity, self.angle = x, y, velocity, angle
+        self.x0, self.y0 = x, y
         self.gravity = 10
 
     def draw(self):
@@ -20,15 +21,17 @@ class Ball:
         draw_rectangle(*self.get_bb())
 
     def update(self):
-        print(f'{game_framework.frame_time}')
-        self.x += self.velocity * game_framework.frame_time
-        accel = (self.velocity * game_framework.frame_time -
-                                 0.5 * self.gravity * game_framework.frame_time ** 2)
-        self.y += accel
+        radianAngle = math.radians(self.angle)
+        self.x += self.velocity * game_framework.frame_time * math.cos(radianAngle)
+        self.y += self.velocity * game_framework.frame_time * math.sin(radianAngle)
+        if(self.angle > -90):
+            self.angle -= 0.2
+        print(self.angle)
         if self.x < 25 or self.x > 1000 - 25:
             self.velocity = -self.velocity
             print(f'turn back')
-            #game_world.remove_object(self)
+        if self.y < 100:#땅에 부딪치면 삭제
+            game_world.remove_object(self)
 
 
 
