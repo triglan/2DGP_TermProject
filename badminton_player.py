@@ -228,4 +228,3 @@ class Badminton_player:
     def handle_collision(self, group, other):
         if group == 'player:ball':
             print('충돌함')
-            ball.draw()

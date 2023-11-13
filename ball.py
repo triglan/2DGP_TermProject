@@ -6,7 +6,6 @@ BALL_WID = 30
 BALL_HEI = 30
 class Ball:
     image = None
-
     def __init__(self, x = 400, y = 300, velocity = 300, angle = 45.0, dir = 1):
         if Ball.image == None:
             Ball.image = load_image('Resource/badminton_ball.png')
@@ -32,13 +31,10 @@ class Ball:
         elif self.dir == -1 and self.angle < 270:
             self.angle += 0.1
 
-        print(self.angle)
+        if self.x > 1000 - 25 or self.x < 25: # 벽과 충돌 시
+            self.change_direction()
+            print(self.angle)
 
-
-        if self.x < 25 or self.x > 1000 - 25:
-            self.angle = 180 - self.angle
-            self.dir = -1
-            print(f'turn back')
         if self.y < 100:#땅에 부딪치면 삭제
             game_world.remove_object(self)
 
@@ -50,4 +46,10 @@ class Ball:
 
     def handle_collision(self, group, other):
         if group == 'player:ball':
-            game_world.remove_object(self)
+            pass
+            #self.change_direction()
+
+    def change_direction(self):
+        self.angle = 180 - self.angle
+        self.dir *= -1
+        print(f'turn back')
