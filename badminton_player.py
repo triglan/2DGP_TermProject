@@ -65,7 +65,10 @@ class Idle:
         player.dir = 0
         player.frame = 0
         player.wait_time = get_time() # pico2d import 필요
-        pass
+        if l_down(e):
+            player.isServed = True
+            ball = Ball(900, 100, 300, 135, -1)
+            game_world.add_object(ball)
 
     @staticmethod
     def exit(player, e):
@@ -154,7 +157,7 @@ class StateMachine:
         self.player = player
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Swing},
+            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Swing, l_down: Idle},
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Swing},
             Swing: {right_down: Swing, left_down: Swing, left_up: Swing, right_up: Swing, time_out: Idle, time_out_while_running: Run},
         }
