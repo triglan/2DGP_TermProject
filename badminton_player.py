@@ -43,14 +43,14 @@ def time_out_while_running(e):
 
 
 
-# Boy Run Speed
+# player Run Speed
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
 RUN_SPEED_KMPH = 20.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-# Boy Action Speed
+# player Action Speed
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
@@ -69,6 +69,7 @@ class Idle:
             player.isServed = True
             ball = Ball(900, 100, 300, 135, -1)
             game_world.add_object(ball)
+            game_world.add_collision_pair('player:ball', None, ball)
 
     @staticmethod
     def exit(player, e):
@@ -207,6 +208,7 @@ class Badminton_player:
             self.isServed = True
             ball = Ball(self.x, self.y, self.face_dir * 300)
             game_world.add_object(ball)
+            game_world.add_collision_pair('player:ball', None, ball)
 
     def update(self):
         self.state_machine.update()
@@ -224,4 +226,6 @@ class Badminton_player:
         return self.x,  self.y - 30, self.x + 50,  self.y + 30
 
     def handle_collision(self, group, other):
-        pass
+        if group == 'player:ball':
+            print('충돌함')
+            ball.draw()

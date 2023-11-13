@@ -2,7 +2,7 @@ objects = [[] for _ in range(4)]
 
 # fill here
 # 충돌 그룹 정보를 dictionary로 표현.
-collision_pairs = {} # { 'boy:ball' : [ [boy], [ball1, ball2, ...] }
+collision_pairs = {} # { 'player:ball' : [ [player], [ball1, ball2, ...] }
 
 def add_object(o, depth = 0):
     objects[depth].append(o)
@@ -23,7 +23,7 @@ def render():
             o.draw()
 
 # fill here
-def add_collision_pair(group, a, b): # add collision_pair('boy:ball', None, ball)
+def add_collision_pair(group, a, b): # add collision_pair('player:ball', None, ball)
     if group not in collision_pairs: # dictionary에 key group이 존재하지 않는다면
         print(f'New group {group} added')
         collision_pairs[group] = [ [], [] ] #a, b가 있는 리스트로 초기화

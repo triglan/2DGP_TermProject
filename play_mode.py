@@ -8,7 +8,7 @@ from background import Grass
 from badminton_player import Badminton_player
 from ball import Ball
 
-# boy = None
+# player = None
 
 def handle_events():
     events = get_events()
@@ -18,11 +18,11 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         else:
-            boy.handle_event(event)
+            player.handle_event(event)
 
 def init():
     global grass
-    global boy
+    global player
     global balls
 
     running = True
@@ -30,9 +30,9 @@ def init():
     grass = Grass()
     game_world.add_object(grass, 0)
 
-    boy = Badminton_player()
-    game_world.add_object(boy, 1)
-
+    player = Badminton_player()
+    game_world.add_object(player, 1)
+    game_world.add_collision_pair('player:ball', player, None)#플레이어와 공 충돌
 
 
 
@@ -47,8 +47,8 @@ def update():
     game_world.handle_collisions()
     # fill here
     # for ball in balls:
-    #     if game_world.collide(boy, ball):
-    #         print("COLLISION boy:ball")
+    #     if game_world.collide(player, ball):
+    #         print("COLLISION player:ball")
 
 def draw():
     clear_canvas()

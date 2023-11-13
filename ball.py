@@ -1,7 +1,7 @@
 from pico2d import *
 import game_world
 import game_framework
-
+import config
 BALL_WID = 30
 BALL_HEI = 30
 class Ball:
@@ -49,5 +49,5 @@ class Ball:
         return self.x - BALL_WID / 2, self.y - BALL_WID / 2, self.x + BALL_WID / 2, self.y + BALL_WID / 2
 
     def handle_collision(self, group, other):
-        if group == 'boy:ball':
+        if group == 'player:ball':
             game_world.remove_object(self)
