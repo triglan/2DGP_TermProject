@@ -7,7 +7,7 @@ BALL_HEI = 30
 class Ball:
     image = None
 
-    def __init__(self, x = 400, y = 300, velocity = 10):
+    def __init__(self, x = 400, y = 300, velocity = 300):
         if Ball.image == None:
             Ball.image = load_image('Resource/badminton_ball.png')
         self.x, self.y, self.velocity = x, y, velocity
@@ -20,10 +20,11 @@ class Ball:
         draw_rectangle(*self.get_bb())
 
     def update(self):
-        self.x += self.velocity * 30 * game_framework.frame_time
-        vertical_displacement = (self.velocity * game_framework.frame_time +
+        print(f'{game_framework.frame_time}')
+        self.x += self.velocity * game_framework.frame_time
+        accel = (self.velocity * game_framework.frame_time -
                                  0.5 * self.gravity * game_framework.frame_time ** 2)
-        self.y += vertical_displacement
+        self.y += accel
         if self.x < 25 or self.x > 1000 - 25:
             self.velocity = -self.velocity
             print(f'turn back')

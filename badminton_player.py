@@ -1,6 +1,6 @@
 # 이것은 각 상태들을 객체로 구현한 것임.
 
-from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, \
+from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_l , \
     draw_rectangle
 from ball import Ball
 import game_world
@@ -10,6 +10,9 @@ from racket import Racket
 
 # state event check
 # ( state event type, event value )
+
+def l_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
 
 def right_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_RIGHT
@@ -128,8 +131,6 @@ class Swing:
     def exit(player, e):
         pass
 
-
-
     @staticmethod
     def do(player):
         player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time / 5) % 4#너무 빨라서 애니메이션 재생 느리게 함
@@ -201,7 +202,7 @@ class Badminton_player:
         pass
         if not self.isServed:
             self.isServed = True
-            ball = Ball(self.x, self.y, self.face_dir * 10)
+            ball = Ball(self.x, self.y, self.face_dir * 300)
             game_world.add_object(ball)
 
     def update(self):
