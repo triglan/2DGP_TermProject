@@ -126,35 +126,7 @@ class Run:
 
 
 class Swing:#수정해
-
-    @staticmethod
-    def enter(boy, e):
-        if right_down(e) or left_up(e): # 오른쪽으로 RUN
-            boy.dir, boy.action, boy.face_dir = 1, 1, 1
-        elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-            boy.dir, boy.action, boy.face_dir = -1, 0, -1
-
-    @staticmethod
-    def exit(boy, e):
-        if space_down(e):
-            boy.swing()
-
-        pass
-
-    @staticmethod
-    def do(boy):
-        boy.x += boy.dir * RUN_SPEED_PPS * game_framework.frame_time
-        boy.x = clamp(25, boy.x, 1600-25)
-        boy.walking_frame = (boy.walking_frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-
-
-    @staticmethod
-    def draw(boy):
-        if boy.face_dir == -1:
-            boy.walking_image.clip_composite_draw(int(boy.walking_frame) * 22, 0, 22, 25, 0, 'h', boy.x, boy.y, 80, 80)
-        else:
-            boy.walking_image.clip_composite_draw(int(boy.walking_frame) * 22, 0, 22, 25, 0, '', boy.x, boy.y, 80, 80)
-
+    pass
 class StateMachine:
     def __init__(self, boy):
         self.boy = boy
@@ -202,6 +174,7 @@ class Boy:
         self.state_machine = StateMachine(self)
         self.state_machine.start()
         self.ball_count = 10
+
 
 
     def swing(self):
