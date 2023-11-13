@@ -66,8 +66,8 @@ class Idle:
 
     @staticmethod
     def exit(player, e):
-        pass
-
+        if space_down(e):
+            player.swing()
     @staticmethod
     def do(player):
         player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
@@ -86,19 +86,15 @@ class Idle:
 class Run:
     @staticmethod
     def enter(boy, e):
-        if dir == 0 and (left_up(e) or right_up(e)):
-            boy.state_machine.handle_event(('TIME_OUT', 0))
-            print(f'comein')
-
         if right_down(e) or left_up(e): # 오른쪽으로 RUN
             boy.dir,  boy.face_dir = 1, 1
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
             boy.dir,  boy.face_dir = -1, -1
-            print(f'whyhere')
 
     @staticmethod
     def exit(boy, e):
-        #boy.dir = 0
+        if space_down(e):
+            boy.swing()
         pass
 
     @staticmethod
@@ -195,16 +191,16 @@ class Badminton_player:
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
-        self.round_start = True
+        self.isServed = False
 
 
 
     def swing(self):
         pass
-        # if self.ball_count > 0:
-        #     self.ball_count -= 1
-        #     racket = Racket(self.x, self.y + 30, -90)
-        #     game_world.add_object(racket)
+        if not self.isServed:
+            self.isServed = True
+            ball = Ball(self.x, self.y, self.face_dir*10)
+            game_world.add_object(ball)
 
     def update(self):
         self.state_machine.update()
