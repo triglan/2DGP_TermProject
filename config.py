@@ -1,0 +1,1 @@
+change_ball_dir = False
