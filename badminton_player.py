@@ -142,13 +142,13 @@ class Swing:
         player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time / 5) % 4#너무 빨라서 애니메이션 재생 느리게 함
         if player.frame >= 3:
             player.swinging = False
+            config.change_ball_dir = False
             if player.dir == 1:
                 player.state_machine.handle_event(('TIME_OUT_WHILE_RUNNING', 0))  # 오른쪽으로 달리기
             elif player.dir == -1:
                 player.state_machine.handle_event(('TIME_OUT_WHILE_RUNNING', 0))  # 왼쪽으로 달리기
             else:
                 player.state_machine.handle_event(('TIME_OUT', 0))  # Idle 상태로 전환
-        print(f'{player.swinging}')
 
     @staticmethod
     def draw(player):
@@ -220,6 +220,7 @@ class Badminton_player:
 
     def update(self):
         self.state_machine.update()
+        print(f'{self.swinging}')
         if self.isServedCool:
             self.cooldown += game_framework.frame_time
             if self.cooldown > 1:
