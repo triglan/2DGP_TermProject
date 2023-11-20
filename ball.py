@@ -35,7 +35,7 @@ class Ball:
             self.angle += 0.1
 
         if self.x > 1000 - 25 or self.x < 25: # 벽과 충돌 시
-            self.change_direction(180 - self.angle, -self.dir)
+            self.change_direction(  180 - self.angle, -self.dir)
             print(self.angle)
 
         if self.y < 100:#땅에 부딪치면 삭제
