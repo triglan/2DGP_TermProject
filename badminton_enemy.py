@@ -6,6 +6,9 @@ from ball import Ball
 import game_world
 import game_framework
 import config
+from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
+import play_mode
+import math
 
 from racket import Racket
 
@@ -34,7 +37,7 @@ PLAYER_HEI = 100
 
 class Badminton_enemy:
     def __init__(self):
-        self.x, self.y = 200, 150
+        self.x, self.y = 800, 150
         self.frame = 0
         self.face_dir = 1
         self.dir = 0
@@ -42,46 +45,47 @@ class Badminton_enemy:
         self.idle_image = load_image('Resource/mario_Idle.png')
         self.swing_image = load_image('Resource/mario_swing.gif')
         self.font = load_font('ENCR10B.TTF', 16)
-        self.state_machine.start()
         self.isServed = False
         self.isServedCool = False
         self.cooldown = 0.0
         self.swinging = False
-
-
-
-    def swing(self):
-        pass
-        if not self.isServed:
-            self.isServedCool = True
-            self.cooldown = 0.0
-            ball = Ball(self.x, self.y, self.face_dir * 300)
-            game_world.add_object(ball)
-            game_world.add_collision_pair('enemy:ball', None, ball)
+        self.move_speed = 0.02
+        self.build_behavior_tree()
 
     def update(self):
-        self.state_machine.update()
-        print(f'{self.swinging}')
-        if self.isServedCool:
-            self.cooldown += game_framework.frame_time
-            if self.cooldown > 1:
-                self.isServed = True
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        self.bt.run()
 
 
     def handle_event(self, event):
-        self.state_machine.handle_event(('INPUT', event))
+        pass
+
+    def handle_collision(self, group, other):
+        pass
+
 
     def draw(self):
-        self.state_machine.draw()
-        #self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0)) # 글자 출력
+        self.idle_image.clip_composite_draw(int(self.frame) * 20, 0, 20, 25, 0, 'h', self.x, self.y, PLAYER_WID, PLAYER_HEI)
         draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공 충돌체
 
     # fill here
     def get_bb(self):#bounding box
         return self.x,  self.y - 30, self.x + 50,  self.y + 30
 
+    def move_to(self):
+        self.x += self.move_speed
+        return BehaviorTree.SUCCESS
+
+    def is_enemy_hit(self):
+        pass
+
     def handle_collision(self, group, other):
-        if group == 'player:ball':
-            if self.isServed and self.swinging:
-                config.change_ball_dir = True
-                print('충돌함')
+        pass
+
+    def build_behavior_tree(self):
+        a1 = Action('move patrol', self.move_to)
+        c1 = Condition('소년이 근처에 있는가?', self.is_enemy_hit)
+
+        root = SEL_chase_or_flee = Selector('추적 또는 배회', c1, a1)
+
+        self.bt = BehaviorTree(root)
