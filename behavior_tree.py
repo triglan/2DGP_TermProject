@@ -44,7 +44,10 @@ class Node:
     def show_result(f):
         def inner(self):
             result = f(self)
-            print(f'[{self.__class__.__name__:10s}] {self.name:40s} ==> ({result})')
+            # end = '....' if result == BehaviorTree.RUNNING else '\n'
+            end = '\n'
+            color = '\033[2;31;43m' if BehaviorTree.run_mode == 'MONITOR' else '\033[0;37;40m'
+            print(color + f'[{self.__class__.__name__:10s}] {self.name:40s} ==> ({result})', end = end)
             return result
 
         return inner
@@ -81,6 +84,7 @@ class Selector(Node):
         for i, child in enumerate(self.children):
             print(i, child.value, child.has_condition)
             if (child.value in (BehaviorTree.UNDEF, BehaviorTree.RUNNING)) or child.has_condition:
+                print("-------------------------------------------")
                 self.value = child.run()
                 if self.value in (BehaviorTree.RUNNING, BehaviorTree.SUCCESS):
                     return self.value

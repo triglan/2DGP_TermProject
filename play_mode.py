@@ -6,6 +6,7 @@ import game_framework
 import game_world
 from background import Grass
 from badminton_player import Badminton_player
+from badminton_enemy import Badminton_enemy
 from ball import Ball
 
 # player = None
@@ -34,7 +35,8 @@ def init():
     game_world.add_object(player, 1)
     game_world.add_collision_pair('player:ball', player, None)#플레이어와 공 충돌
 
-
+    enemy = Badminton_enemy()
+    
 
 
 def finish():
