@@ -46,8 +46,8 @@ class Badminton_enemy:
         self.idle_image = load_image('Resource/mario_Idle.png')
         self.swing_image = load_image('Resource/mario_swing.gif')
         self.font = load_font('ENCR10B.TTF', 16)
-        self.isServed = False
-        self.isServedCool = False
+        isServed = False
+        isServedCool = False
         self.cooldown = 0.0
         self.swinging = False
         self.move_speed = 0.0

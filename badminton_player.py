@@ -35,12 +35,8 @@ def time_out_while_running(e):
 
 
 
-# player Run Speed
-PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 20.0  # Km / Hour
-RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
-RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
-RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+
 
 # player Action Speed
 TIME_PER_ACTION = 0.5
@@ -58,7 +54,7 @@ class Idle:
         player.frame = 0
         player.wait_time = get_time() # pico2d import 필요
         if l_down(e):
-            ball = Ball(900, 100, 300, 135, -1)
+            ball = Ball(900, 100, config.BALL_SPEED_PPS, 135, -1)
             game_world.add_object(ball)
             game_world.add_collision_pair('player:ball', None, ball)
 
@@ -70,7 +66,7 @@ class Idle:
     def do(player):
         player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         if get_time() - player.wait_time > 2:
-            player.state_machine.handle_event(('TIME_OUT', 0))
+            player.state_machine.handle_event(('TIME_OUT', 0)) 
 
     @staticmethod
     def draw(player):
@@ -78,7 +74,6 @@ class Idle:
             player.idle_image.clip_composite_draw(int(player.frame) * 20, 0, 20, 25, 0, 'h', player.x, player.y, PLAYER_WID, PLAYER_HEI)
         else:
             player.idle_image.clip_composite_draw(int(player.frame) * 20, 0, 20, 25, 0, '', player.x, player.y, PLAYER_WID, PLAYER_HEI)
-
 
 
 class Run:
@@ -97,7 +92,7 @@ class Run:
 
     @staticmethod
     def do(player):
-        player.x += player.dir * RUN_SPEED_PPS * game_framework.frame_time
+        player.x += player.dir * config.PLAYER_RUN_SPEED_PPS * game_framework.frame_time
         player.x = clamp(25, player.x, 500-25)
         player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
 
@@ -192,7 +187,6 @@ class Badminton_player:
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
-        self.isServed = False
         self.isServedCool = False
         self.cooldown = 0.0
         self.swinging = False
@@ -201,10 +195,10 @@ class Badminton_player:
 
     def swing(self):
         pass
-        if not self.isServed:
+        if not config.isServed:
             self.isServedCool = True
             self.cooldown = 0.0
-            ball = Ball(self.x, self.y, self.face_dir * 300)
+            ball = Ball(self.x, self.y, config.BALL_SPEED_PPS)
             game_world.add_object(ball)
             game_world.add_collision_pair('player:ball', None, ball)
 
@@ -212,9 +206,9 @@ class Badminton_player:
         self.state_machine.update()
         print(f'{self.swinging}')
         if self.isServedCool:
-            self.cooldown += game_framework.frame_time
+            self.cooldown += game_framework.frame_time * 100
             if self.cooldown > 1:
-                self.isServed = True
+                config.isServed = True
 
 
     def handle_event(self, event):
@@ -231,6 +225,6 @@ class Badminton_player:
 
     def handle_collision(self, group, other):
         if group == 'player:ball':
-            if self.isServed and self.swinging:
+            if config.isServed and self.swinging:
                 config.change_ball_dir = True
                 print('충돌함')

@@ -28,7 +28,7 @@ class Ball:
         radianAngle = math.radians(self.angle)
         self.x += self.velocity * game_framework.frame_time * math.cos(radianAngle)
         self.y += self.velocity * game_framework.frame_time * math.sin(radianAngle)
-
+        self.velocity += game_framework.frame_time * 100
         if self.dir == 1 and self.angle > -90:
             self.angle += -0.1
         elif self.dir == -1 and self.angle < 270:
