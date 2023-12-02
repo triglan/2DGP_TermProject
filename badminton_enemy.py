@@ -30,10 +30,10 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
-PLAYER_WID = 50
-PLAYER_HEI = 100
+Enemy_WID = 50
+Enemy_HEI = 100
 
-
+animation_names = ['Walk', 'Idle', 'Hit']
 
 class Badminton_enemy:
     def __init__(self):
@@ -46,6 +46,7 @@ class Badminton_enemy:
         self.idle_image = load_image('Resource/mario_Idle.png')
         self.swing_image = load_image('Resource/mario_swing.gif')
         self.font = load_font('ENCR10B.TTF', 16)
+        self.state = 'Idle'
         isServed = False
         isServedCool = False
         self.cooldown = 0.0
@@ -54,7 +55,8 @@ class Badminton_enemy:
         self.build_behavior_tree()
 
     def update(self):
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        if self.state == 'Idle': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        elif self.state == 'Walk': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         self.bt.run()
 
 
@@ -66,8 +68,16 @@ class Badminton_enemy:
 
 
     def draw(self):
-        self.idle_image.clip_composite_draw(int(self.frame) * 20, 0, 20, 25, 0, 'h', self.x, self.y, PLAYER_WID, PLAYER_HEI)
+        if(self.state == 'Idle'):
+            self.idle_image.clip_composite_draw(int(self.frame) * 20, 0, 20, 25, 0, 'h', self.x, self.y, Enemy_WID, Enemy_HEI)
+        elif(self.state == 'Walk'):
+            if self.face_dir == -1: self.walking_image.clip_composite_draw(int(self.frame) * 22, 0, 22, 25, 0, 'h', self.x, self.y, Enemy_WID, Enemy_HEI)
+            else: self.walking_image.clip_composite_draw(int(self.frame) * 22, 0, 22, 25, 0, '', self.x, self.y, Enemy_WID, Enemy_HEI)
+        elif(self.state == 'Hit'):
+            self.swing_image.clip_composite_draw(int(self.frame) * 20, 0, 20, 25, 0, 'h', self.x, self.y, Enemy_WID, Enemy_HEI)
+
         draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공 충돌체
+
 
     # fill here
     def get_bb(self):#bounding box
@@ -78,15 +88,16 @@ class Badminton_enemy:
         self.speed = RUN_SPEED_PPS
         self.x += self.speed * math.cos(self.dir) * game_framework.frame_time
 
-    def move_to(self, r = 0.5):
+    def move_to(self):
         self.move_slightly_to(self.tx)
-        if (self.tx - self.x)**2 > r**2:
-            return BehaviorTree.SUCCESS
-        else:
-            return BehaviorTree.RUNNING
+        self.state = 'Walk'
 
-    def is_enemy_hit(self):
-        pass
+
+    def hit(self):
+        self.state = 'Hit'
+
+    def idle(self):
+        self.state = 'Idle'
 
     def handle_collision(self, group, other):
         pass
@@ -97,11 +108,27 @@ class Badminton_enemy:
         if not x:
             raise ValueError('위치 지정을 해야 한다.')
         self.tx = x
-        return BehaviorTree.SUCCESS
+        if(self.tx > x): self.face_dir = 1
+        else: self.face_dir = -1
+        if (self.tx - self.x)**2 > 0.5 ** 2: return BehaviorTree.SUCCESS
+        else: return BehaviorTree.FAIL
+
+    def is_HitBox(self):
+        #return BehaviorTree.SUCCESS
+        return BehaviorTree.FAIL
 
     def build_behavior_tree(self):
-        a1 = Action('Set target location', self.set_target_location, 100) # action mode
-        a2 = Action('Move to', self.move_to)
-        root = SEL_chase_or_flee = Sequence('추적 또는 배회', a1, a2)
+        TargetAction = Action('Set target location', self.set_target_location, 500) # 위치 지정
+        MovetoAction = Action('Move to', self.move_to)
+        HitAction = Action('hit', self.hit)
+        IdleAction = Action('Idle', self.idle)
 
+        IsHitBoxCon = Condition('Is in Hit Box?', self.is_HitBox)
+
+        SEQ_find_move = Sequence('탐색 및 이동', TargetAction, MovetoAction)
+        SEQ_Hit = Sequence('히트 가능 시 히트', IsHitBoxCon, HitAction)
+
+        SEL_AI = Selector('히트 이동 아이들', SEQ_Hit, SEQ_find_move, IdleAction)
+
+        root = SEL_AI
         self.bt = BehaviorTree(root)
