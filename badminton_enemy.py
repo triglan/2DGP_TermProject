@@ -40,19 +40,16 @@ animation_names = ['Walk', 'Idle', 'Hit']
 
 class Badminton_enemy:
     def __init__(self):
-        self.x, self.y = 800, 150
-        self.tx = 800
-        self.locx = 800
+        self.x, self.y = 750, 150
+        self.tx = 750
         self.frame = 0
         self.face_dir = 1
         self.dir = 0
-        self.walking_image = load_image('Resource/mario_walking.png')
-        self.idle_image = load_image('Resource/mario_Idle.png')
-        self.swing_image = load_image('Resource/mario_swing.gif')
+        self.walking_image = load_image('Resource/luigi_walking.png')
+        self.idle_image = load_image('Resource/luigi_idle.png')
+        self.swing_image = load_image('Resource/luigi_swing.gif')
         self.font = load_font('ENCR10B.TTF', 16)
         self.state = 'Idle'
-        isServed = False
-        isServedCool = False
         self.cooldown = 0.0
         self.swinging = False
         self.move_speed = 0.0
@@ -60,30 +57,52 @@ class Badminton_enemy:
         self.inHitbox = False
         self.hitting = False
         self.speed = RUN_SPEED_PPS
-        self.temp = 750.0
 
+    def change_enemy_image(self):
+        if config.stage_num == 2:
+            self.walking_image = load_image('Resource/yoshi_walking.png')
+            self.idle_image = load_image('Resource/yoshi_idle.png')
+            self.swing_image = load_image('Resource/yoshi_swing.png')
+        if config.stage_num == 3:
+            self.walking_image = load_image('Resource/cupa_walking.png')
+            self.idle_image = load_image('Resource/cupa_idle.png')
+            self.swing_image = load_image('Resource/cupa_swing.png')
+        self.tx = 750
+        self.inHitbox = False
+        self.hitting = False
+        self.swinging = False
+        self.state = 'Idle'
+        self.x, self.y = 750, 150
+        self.frame = 0
+        self.face_dir = 1
+        self.dir = 0
+        config.change_image = False
 
     def update(self):
-        if self.state == 'Idle': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-        elif self.state == 'Walk': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        elif self.state == 'Hit': self.frame = (self.frame + (FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) / 5) % 4
-        #(f'state : {self.state}  frame : {self.frame} hitting : {self.hitting} first {self.inHitbox}')
-        print(f'lccate x : {self.tx}  // isPlayerTurn : {config.isPlayerTurn} // isServed : {config.isServed}')
+        if not config.wait_round:
+            if self.state == 'Idle': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+            elif self.state == 'Walk': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+            elif self.state == 'Hit': self.frame = (self.frame + (FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) / 5) % 4
+            #(f'state : {self.state}  frame : {self.frame} hitting : {self.hitting} first {self.inHitbox}')
+            print(f'lccate x : {self.tx}  // isPlayerTurn : {config.isPlayerTurn} // isServed : {config.isServed}')
 
-        self.find_target_location()
-        if not config.isPlayerTurn and not config.isServed:#서브 넣기
-            config.AIServeTimer += game_framework.frame_time
-            self.state = 'Idle'
-            self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-            if(config.AIServeTimer >= 2):
-                config.isServed = True
-                config.isPlayerTurn = True
-                self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(120, 160), -1)
-                game_world.add_object(self.ball)
-                game_world.add_collision_pair('player:ball', None, self.ball)
-                game_world.add_collision_pair('enemy:ball', None, self.ball)
-        else:
-            self.bt.run()
+            if config.change_image:
+                self.change_enemy_image()
+
+            self.find_target_location()
+            if not config.isPlayerTurn and not config.isServed:#서브 넣기
+                config.AIServeTimer += game_framework.frame_time
+                self.state = 'Idle'
+                self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+                if(config.AIServeTimer >= 2):
+                    config.isServed = True
+                    config.isPlayerTurn = True
+                    self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(120, 160), -1)
+                    game_world.add_object(self.ball)
+                    game_world.add_collision_pair('player:ball', None, self.ball)
+                    game_world.add_collision_pair('enemy:ball', None, self.ball)
+            else:
+                self.bt.run()
 
 
     def handle_event(self, event):

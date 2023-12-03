@@ -48,10 +48,6 @@ class Idle:
         player.dir = 0
         player.frame = 0
         player.wait_time = get_time() # pico2d import 필요
-        if l_down(e):
-            ball = Ball(900, 100, config.BALL_SPEED_PPS, 135, -1)
-            game_world.add_object(ball)
-            game_world.add_collision_pair('player:ball', None, ball)
 
     @staticmethod
     def exit(player, e):
@@ -151,7 +147,8 @@ class StateMachine:
         self.cur_state.enter(self.player, ('NONE', 0))
 
     def update(self):
-        self.cur_state.do(self.player)
+        if not config.wait_round:
+            self.cur_state.do(self.player)
 
     def handle_event(self, e):
         for check_event, next_state in self.transitions[self.cur_state].items():
@@ -175,7 +172,7 @@ class Badminton_player:
         self.dir = 0
         self.walking_image = load_image('Resource/mario_walking.png')
         self.idle_image = load_image('Resource/mario_Idle.png')
-        self.swing_image = load_image('Resource/mario_swing.gif')
+        self.swing_image = load_image('Resource/mario_swing.png')
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
@@ -189,14 +186,15 @@ class Badminton_player:
         if not config.isServed and config.isPlayerTurn:
             config.isServed = True
             config.isPlayerTurn = False
-            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(30, 50))# randint(30, 50)
+            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(30, 55))# randint(30, 50)
             game_world.add_object(self.ball)
             game_world.add_collision_pair('player:ball', None, self.ball)
             game_world.add_collision_pair('enemy:ball', None, self.ball)
 
     def update(self):
-        #print(f'swinging : {self.swinging}')
-        self.state_machine.update()
+        if not config.wait_round:
+            self.state_machine.update()
+
 
     def handle_event(self, event):
         self.state_machine.handle_event(('INPUT', event))
@@ -217,7 +215,6 @@ class Badminton_player:
     def handle_collision(self, group, other):
         if group == 'player:ball' and config.isPlayerTurn and self.swinging: # 충돌 시, 플레이어 턴 휘두루는 중이면
             config.change_ball_dir = True
-            #self.ball.change_direction(randint(140, 220) - self.ball.angle, 1, config.BALL_SPEED_PPS)
             config.isPlayerTurn = False
             config.changeAI = True
             print('충돌함')

@@ -42,7 +42,7 @@ class Ball:
             #print(self.angle)
 
         if self.y < 100:#땅에 부딪치면 삭제
-            if self.x<500:#플레이어 땅에 떨어지면
+            if self.x < 500:#플레이어 땅에 떨어지면
                 config.isPlayerTurn = True
                 config.enemy_score += 1
             else:#상대 땅에 떨어지면
@@ -51,6 +51,11 @@ class Ball:
             config.isServed = False
             config.AIServeTimer = 0
             game_world.remove_object(self)
+
+        if config.change_image:
+            game_world.remove_object(self)
+
+
 
         config.ball_angle = self.angle
         config.ball_vel = self.velocity
@@ -66,7 +71,7 @@ class Ball:
     def handle_collision(self, group, other):
         if group == 'player:ball':
             if config.change_ball_dir:
-                self.change_direction(randint(35, 50), 1, self.velocity)
+                self.change_direction(randint(25, 55), 1, self.velocity)
             config.changeAI = True
         if group == 'enemy:ball':
             self.change_direction(180 - randint(20, 50), -1, config.BALL_SPEED_PPS)

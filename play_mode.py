@@ -5,7 +5,7 @@ import game_framework
 
 import game_world
 import title_mode
-from background import Grass
+from background import BackGround, special_BackGround
 from badminton_player import Badminton_player
 from badminton_enemy import Badminton_enemy
 from ball import Ball
@@ -23,14 +23,17 @@ def handle_events():
             player.handle_event(event)
 
 def init():
-    global grass
+    global background
     global player
     global balls
 
     running = True
 
-    grass = Grass()
-    game_world.add_object(grass, 0)
+    background = BackGround()
+    game_world.add_object(background, 0)
+
+    special_background = special_BackGround()
+    game_world.add_object(special_background, 3)
 
     player = Badminton_player()
     game_world.add_object(player, 1)
