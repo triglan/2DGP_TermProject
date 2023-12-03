@@ -32,12 +32,6 @@ def time_out_while_running(e):
 
 # time_out = lambda e : e[0] == 'TIME_OUT'
 
-
-
-
-
-
-
 # player Action Speed
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
@@ -172,9 +166,6 @@ class StateMachine:
         self.cur_state.draw(self.player)
 
 
-
-
-
 class Badminton_player:
     def __init__(self):
         self.x, self.y = 200, 150
@@ -187,29 +178,19 @@ class Badminton_player:
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
-        self.isServedCool = False
-        self.cooldown = 0.0
         self.swinging = False
 
-
-
     def swing(self):
-        pass
         if not config.isServed:
-            self.isServedCool = True
-            self.cooldown = 0.0
-            ball = Ball(self.x, self.y, config.BALL_SPEED_PPS)
+            config.isServed = True
+            config.isPlayerTurn = False
+            ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, 40)
             game_world.add_object(ball)
             game_world.add_collision_pair('player:ball', None, ball)
+            game_world.add_collision_pair('enemy:ball', None, ball)
 
     def update(self):
         self.state_machine.update()
-        print(f'{self.swinging}')
-        if self.isServedCool:
-            self.cooldown += game_framework.frame_time * 100
-            if self.cooldown > 1:
-                config.isServed = True
-
 
     def handle_event(self, event):
         self.state_machine.handle_event(('INPUT', event))
@@ -224,7 +205,7 @@ class Badminton_player:
         return self.x,  self.y - 30, self.x + 50,  self.y + 30
 
     def handle_collision(self, group, other):
-        if group == 'player:ball':
-            if config.isServed and self.swinging:
-                config.change_ball_dir = True
-                print('충돌함')
+        if group == 'player:ball' and config.isPlayerTurn: # 충돌 시, 플레이어 턴이면
+            config.change_ball_dir = True
+            config.isPlayerTurn = True
+            print('충돌함')

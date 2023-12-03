@@ -38,6 +38,7 @@ def init():
 
     enemy = Badminton_enemy()
     game_world.add_object(enemy, 1)
+    game_world.add_collision_pair('enemy:ball', enemy, None)#플레이어와 공 충돌
 
 
 def finish():

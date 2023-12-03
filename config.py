@@ -1,5 +1,5 @@
 change_ball_dir = False
-
+isPlayerTurn = False # 플레이어가 치면 True enemy가 치면 False
 isServed = False
 
 # player Run Speed

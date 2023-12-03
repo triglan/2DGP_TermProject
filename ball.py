@@ -25,17 +25,18 @@ class Ball:
         draw_rectangle(*self.get_bb())
 
     def update(self):
+        print(f'angel : {self.angle} dir : {self.dir}, velocity : {self.velocity}')
         radianAngle = math.radians(self.angle)
         self.x += self.velocity * game_framework.frame_time * math.cos(radianAngle)
         self.y += self.velocity * game_framework.frame_time * math.sin(radianAngle)
-        self.velocity += game_framework.frame_time * 100
+        #self.velocity += game_framework.frame_time * 100
         if self.dir == 1 and self.angle > -90:
             self.angle += -0.1
         elif self.dir == -1 and self.angle < 270:
             self.angle += 0.1
 
         if self.x > 1000 - 25 or self.x < 25: # 벽과 충돌 시
-            self.change_direction(  180 - self.angle, -self.dir)
+            self.change_direction(180 - self.angle, -self.dir)
             print(self.angle)
 
         if self.y < 100:#땅에 부딪치면 삭제
@@ -49,6 +50,13 @@ class Ball:
 
     def handle_collision(self, group, other):
         if group == 'player:ball':
+            if config.change_ball_dir:
+                if self.angle > 90:
+                    self.change_direction(self.angle - 180, 1)
+                else:
+                    self.change_direction(180 - self.angle, -1)
+                change_ball_dir = False
+        if group == 'enemy:ball':
             if config.change_ball_dir:
                 if self.angle > 90:
                     self.change_direction(self.angle - 180, 1)

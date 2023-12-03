@@ -53,10 +53,16 @@ class Badminton_enemy:
         self.swinging = False
         self.move_speed = 0.0
         self.build_behavior_tree()
+        self.inHitbox = False
+        self.hitting = False
+        self.speed = RUN_SPEED_PPS
+
 
     def update(self):
         if self.state == 'Idle': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         elif self.state == 'Walk': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        elif self.state == 'Hit': self.frame = (self.frame + (FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) / 5) % 4
+        #(f'state : {self.state}  frame : {self.frame} hitting : {self.hitting} first {self.inHitbox}')
         self.bt.run()
 
 
@@ -74,18 +80,17 @@ class Badminton_enemy:
             if self.face_dir == -1: self.walking_image.clip_composite_draw(int(self.frame) * 22, 0, 22, 25, 0, 'h', self.x, self.y, Enemy_WID, Enemy_HEI)
             else: self.walking_image.clip_composite_draw(int(self.frame) * 22, 0, 22, 25, 0, '', self.x, self.y, Enemy_WID, Enemy_HEI)
         elif(self.state == 'Hit'):
-            self.swing_image.clip_composite_draw(int(self.frame) * 20, 0, 20, 25, 0, 'h', self.x, self.y, Enemy_WID, Enemy_HEI)
+            self.swing_image.clip_composite_draw(int(self.frame) * 21, 0, 21, 25, 0, 'h', self.x, self.y, Enemy_WID, Enemy_HEI)
 
         draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공 충돌체
 
 
     # fill here
     def get_bb(self):#bounding box
-        return self.x,  self.y - 30, self.x + 50,  self.y + 30
+        return self.x - 50,  self.y - 30, self.x,  self.y + 30
 
     def move_slightly_to(self, tx):
         self.dir = math.atan2(0, tx - self.x)
-        self.speed = RUN_SPEED_PPS
         self.x += self.speed * math.cos(self.dir) * game_framework.frame_time
 
     def move_to(self):
@@ -94,15 +99,23 @@ class Badminton_enemy:
 
 
     def hit(self):
-        self.state = 'Hit'
+        if not self.hitting:
+            self.hitting = True
+            self.frame = 0
+            ball = Ball(self.x, self.y, config.BALL_SPEED_PPS)
+        if self.hitting:
+            self.state = 'Hit'
+            if self.frame >= 3:
+                self.hitting = False
 
     def idle(self):
         self.state = 'Idle'
 
     def handle_collision(self, group, other):
-        pass
-
-
+        if group == 'enemy:ball':
+            config.change_ball_dir = True
+            self.inHitbox = True
+            config.isPlayerTurn = False
 
     def set_target_location(self, x = None):
         if not x:
@@ -113,12 +126,14 @@ class Badminton_enemy:
         if (self.tx - self.x)**2 > 0.5 ** 2: return BehaviorTree.SUCCESS
         else: return BehaviorTree.FAIL
 
-    def is_HitBox(self):
-        #return BehaviorTree.SUCCESS
+    def is_HitBox(self): # 조건식하고 해당 프레임동안 hit 켜주기
+        if self.inHitbox or self.hitting:
+            self.inHitbox = False
+            return BehaviorTree.SUCCESS
         return BehaviorTree.FAIL
 
     def build_behavior_tree(self):
-        TargetAction = Action('Set target location', self.set_target_location, 500) # 위치 지정
+        TargetAction = Action('Set target location', self.set_target_location, 900) # 위치 지정
         MovetoAction = Action('Move to', self.move_to)
         HitAction = Action('hit', self.hit)
         IdleAction = Action('Idle', self.idle)
