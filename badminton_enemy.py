@@ -132,6 +132,8 @@ class Badminton_enemy:
             return BehaviorTree.SUCCESS
         return BehaviorTree.FAIL
 
+    def find_target_location(self):
+        pass
     def build_behavior_tree(self):
         TargetAction = Action('Set target location', self.set_target_location, 900) # 위치 지정
         MovetoAction = Action('Move to', self.move_to)

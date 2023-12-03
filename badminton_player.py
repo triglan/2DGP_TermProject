@@ -1,4 +1,5 @@
 # 이것은 각 상태들을 객체로 구현한 것임.
+from random import randint
 
 from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_l , \
     draw_rectangle
@@ -104,10 +105,13 @@ class Swing:
     def enter(player, e):#key_down시 Run하게끔 key_up시 다시 Idle로 바꿔주기
         if right_down(e): # 오른쪽으로 RUN
             player.dir,  player.face_dir = 1, 1
+            return
         elif left_down(e): # 왼쪽으로 RUN
             player.dir,  player.face_dir = -1, -1
+            return
         if left_up(e) or right_up(e):
             player.dir = 0
+            return
         player.frame = 0
         player.swinging = True
         pass
@@ -179,15 +183,16 @@ class Badminton_player:
         self.state_machine = StateMachine(self)
         self.state_machine.start()
         self.swinging = False
+        self.ball = None
 
     def swing(self):
         if not config.isServed:
             config.isServed = True
             config.isPlayerTurn = False
-            ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, 40)
-            game_world.add_object(ball)
-            game_world.add_collision_pair('player:ball', None, ball)
-            game_world.add_collision_pair('enemy:ball', None, ball)
+            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, 40)
+            game_world.add_object(self.ball)
+            game_world.add_collision_pair('player:ball', None, self.ball)
+            game_world.add_collision_pair('enemy:ball', None, self.ball)
 
     def update(self):
         self.state_machine.update()
@@ -206,6 +211,7 @@ class Badminton_player:
 
     def handle_collision(self, group, other):
         if group == 'player:ball' and config.isPlayerTurn: # 충돌 시, 플레이어 턴이면
-            config.change_ball_dir = True
+            #config.change_ball_dir = True
+            self.ball.change_direction(randint(160, 200) - self.ball.angle, 1)
             config.isPlayerTurn = True
             print('충돌함')

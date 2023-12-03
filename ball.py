@@ -65,7 +65,8 @@ class Ball:
                 change_ball_dir = False
 
 
-    def change_direction(self, angle, dir):
+    def change_direction(self, angle, dir, velocity = 300):
         self.angle = angle
         self.dir = dir
+        self.velocity = velocity
         print(f'turn back')
