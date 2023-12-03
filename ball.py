@@ -1,3 +1,5 @@
+from random import randint
+
 from pico2d import *
 
 import config
@@ -9,7 +11,7 @@ BALL_WID = 30
 BALL_HEI = 30
 class Ball:
     image = None
-    def __init__(self, x = 400, y = 300, velocity = 300, angle = 45.0, dir = 1):
+    def __init__(self, x = 400, y = 300, velocity = config.BALL_SPEED_PPS, angle = 45.0, dir = 1):
         if Ball.image == None:
             Ball.image = load_image('Resource/badminton_ball.png')
         self.x, self.y, self.velocity, self.angle = x, y, velocity, angle
@@ -25,7 +27,7 @@ class Ball:
         draw_rectangle(*self.get_bb())
 
     def update(self):
-        print(f'angel : {self.angle} dir : {self.dir}, velocity : {self.velocity}')
+        #print(f'angel : {self.angle} dir : {self.dir}, velocity : {self.velocity}')
         radianAngle = math.radians(self.angle)
         self.x += self.velocity * game_framework.frame_time * math.cos(radianAngle)
         self.y += self.velocity * game_framework.frame_time * math.sin(radianAngle)
@@ -37,10 +39,23 @@ class Ball:
 
         if self.x > 1000 - 25 or self.x < 25: # 벽과 충돌 시
             self.change_direction(180 - self.angle, -self.dir)
-            print(self.angle)
+            #print(self.angle)
 
         if self.y < 100:#땅에 부딪치면 삭제
+            if self.x<500:#플레이어 땅에 떨어지면
+                config.isPlayerTurn = True
+                config.enemy_score += 1
+            else:#상대 땅에 떨어지면
+                config.isPlayerTurn = False
+                config.player_score += 1
+            config.isServed = False
+            config.AIServeTimer = 0
             game_world.remove_object(self)
+
+        config.ball_angle = self.angle
+        config.ball_vel = self.velocity
+        config.ball_x = self.x
+        config.ball_y = self.y
 
 
 
@@ -51,21 +66,16 @@ class Ball:
     def handle_collision(self, group, other):
         if group == 'player:ball':
             if config.change_ball_dir:
-                if self.angle > 90:
-                    self.change_direction(self.angle - 180, 1)
-                else:
-                    self.change_direction(180 - self.angle, -1)
-                change_ball_dir = False
+                self.change_direction(randint(35, 50), 1, self.velocity)
+            config.changeAI = True
         if group == 'enemy:ball':
-            if config.change_ball_dir:
-                if self.angle > 90:
-                    self.change_direction(self.angle - 180, 1)
-                else:
-                    self.change_direction(180 - self.angle, -1)
-                change_ball_dir = False
+            self.change_direction(180 - randint(20, 50), -1, config.BALL_SPEED_PPS)
+            config.changeAI = True
+
+        change_ball_dir = False
 
 
-    def change_direction(self, angle, dir, velocity = 300):
+    def change_direction(self, angle, dir, velocity = config.BALL_SPEED_PPS):
         self.angle = angle
         self.dir = dir
         self.velocity = velocity

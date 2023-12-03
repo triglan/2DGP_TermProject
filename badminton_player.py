@@ -135,10 +135,7 @@ class Swing:
 
     @staticmethod
     def draw(player):
-        if player.face_dir == -1:
-            player.swing_image.clip_composite_draw(int(player.frame) * 21, 0, 21, 25, 0, 'h', player.x, player.y, PLAYER_WID, PLAYER_HEI)
-        else:
-            player.swing_image.clip_composite_draw(int(player.frame) * 21, 0, 21, 25, 0, '', player.x, player.y, PLAYER_WID, PLAYER_HEI)
+        player.swing_image.clip_composite_draw(int(player.frame) * 21, 0, 21, 25, 0, '', player.x, player.y, PLAYER_WID, PLAYER_HEI)
 
 class StateMachine:
     def __init__(self, player):
@@ -185,16 +182,20 @@ class Badminton_player:
         self.swinging = False
         self.ball = None
 
+        self.player_score_font = load_font('ENCR10B.TTF', 25)
+        self.player_score_color = (255, 255, 255)  # 폰트 색상 (흰색)
+
     def swing(self):
-        if not config.isServed:
+        if not config.isServed and config.isPlayerTurn:
             config.isServed = True
             config.isPlayerTurn = False
-            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, 40)
+            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(30, 50))# randint(30, 50)
             game_world.add_object(self.ball)
             game_world.add_collision_pair('player:ball', None, self.ball)
             game_world.add_collision_pair('enemy:ball', None, self.ball)
 
     def update(self):
+        #print(f'swinging : {self.swinging}')
         self.state_machine.update()
 
     def handle_event(self, event):
@@ -205,13 +206,18 @@ class Badminton_player:
         #self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0)) # 글자 출력
         draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공 충돌체
 
+        self.player_score_font.draw(200, 50, f'Player Score : {config.player_score}', self.player_score_color)
+        self.player_score_font.draw(500, 50, f'Enemy Score : {config.enemy_score}', self.player_score_color)
+
+
     # fill here
     def get_bb(self):#bounding box
         return self.x,  self.y - 30, self.x + 50,  self.y + 30
 
     def handle_collision(self, group, other):
-        if group == 'player:ball' and config.isPlayerTurn: # 충돌 시, 플레이어 턴이면
-            #config.change_ball_dir = True
-            self.ball.change_direction(randint(160, 200) - self.ball.angle, 1)
-            config.isPlayerTurn = True
+        if group == 'player:ball' and config.isPlayerTurn and self.swinging: # 충돌 시, 플레이어 턴 휘두루는 중이면
+            config.change_ball_dir = True
+            #self.ball.change_direction(randint(140, 220) - self.ball.angle, 1, config.BALL_SPEED_PPS)
+            config.isPlayerTurn = False
+            config.changeAI = True
             print('충돌함')

@@ -1,6 +1,15 @@
 change_ball_dir = False
-isPlayerTurn = False # 플레이어가 치면 True enemy가 치면 False
+isPlayerTurn = True # 플레이어가 치면 True enemy가 치면 False
 isServed = False
+changeAI = True
+
+ball_angle = 0.0
+ball_vel = 0.0
+ball_x, ball_y = 0.0, 0.0
+AIServeTimer = 0.0
+
+player_score = 0
+enemy_score = 0
 
 # player Run Speed
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
