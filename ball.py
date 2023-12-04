@@ -24,7 +24,7 @@ class Ball:
         #self.image.draw(self.x, self.y)
         self.image.clip_composite_draw(0, 0, 950, 730, 0, '',
                                        self.x, self.y, BALL_WID, BALL_HEI)
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
 
     def update(self):
         #print(f'angel : {self.angle} dir : {self.dir}, velocity : {self.velocity}')
@@ -32,9 +32,9 @@ class Ball:
         self.x += self.velocity * game_framework.frame_time * math.cos(radianAngle)
         self.y += self.velocity * game_framework.frame_time * math.sin(radianAngle)
         #self.velocity += game_framework.frame_time * 100
-        if self.dir == 1 and self.angle > -90:
+        if self.dir == 1:
             self.angle += -0.15
-        elif self.dir == -1 and self.angle < 270:
+        elif self.dir == -1:
             self.angle += 0.15
 
         config.ball_angle = self.angle
@@ -42,10 +42,16 @@ class Ball:
         config.ball_x = self.x
         config.ball_y = self.y
 
+        # if config.reset_ball:
+        #     game_world.remove_object(self)
+        #     config.reset_ball=False
+
         if self.x > 1000 - 25: # 벽과 충돌 시 죽이자 적벽에 충돌 시 패배
-            self.change_direction(180.0 - ((self.angle - 90.0) / 2.0), -1, self.velocity * 1.1)
+            self.change_direction(randint(225, 255), -1, self.velocity)
+            config.changeAI = True
         elif self.x < 25: # 플레이어 벽과 충돌 시
-            self.change_direction(((180.0 - self.angle) - 90.0) / 2.0, 1, self.velocity * 1.1)
+            self.change_direction(randint(-80, -55), 1, self.velocity)
+            config.changeAI = True
 
         if self.y < 100:#땅에 부딪치면 삭제
             if self.x < 500:#플레이어 땅에 떨어지면
@@ -71,10 +77,10 @@ class Ball:
     def handle_collision(self, group, other):
         if group == 'player:ball':
             if config.change_ball_dir:
-                self.change_direction(randint(30, 50), 1, self.velocity * 1.1)
+                self.change_direction(randint(30, 50), 1, self.velocity + config.BALL_ADD_VEL)
             config.changeAI = True
         if group == 'enemy:ball':
-            self.change_direction(180 - randint(30, 50), -1,  self.velocity * 1.1)
+            self.change_direction(180 - randint(30, 50), -1,  self.velocity + config.BALL_ADD_VEL)
             config.changeAI = True
 
         change_ball_dir = False

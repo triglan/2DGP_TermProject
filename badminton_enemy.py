@@ -1,8 +1,9 @@
 # 이것은 각 상태들을 객체로 구현한 것임.
 from random import randint
 
-from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_l , \
-    draw_rectangle
+from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, \
+    SDLK_l, \
+    draw_rectangle, load_wav
 
 from badminton_player import Badminton_player
 from ball import Ball
@@ -22,7 +23,7 @@ from racket import Racket
 
 
 # player Run Speed
-PIXEL_PER_METER = (1.0 / 0.3)  # 10 pixel 30 cm
+PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
 RUN_SPEED_KMPH = 3.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
@@ -56,9 +57,14 @@ class Badminton_enemy:
         self.build_behavior_tree()
         self.inHitbox = False
         self.hitting = False
-        self.speed = 7 * 9.259
-
+        self.speed = 10 * config.PIXEL_PER_KMPH
+        self.hit_sound = load_wav('Sounds/hit2.mp3')
+        self.hit_sound.set_volume(40)
     def change_enemy_image(self):
+        if config.stage_num == 1:
+            self.walking_image = load_image('Resource/luigi_walking.png')
+            self.idle_image = load_image('Resource/luigi_idle.png')
+            self.swing_image = load_image('Resource/luigi_swing.gif  ')
         if config.stage_num == 2:
             self.walking_image = load_image('Resource/yoshi_walking.png')
             self.idle_image = load_image('Resource/yoshi_idle.png')
@@ -77,18 +83,20 @@ class Badminton_enemy:
         self.face_dir = 1
         self.dir = 0
         if config.stage_num == 2:
-            self.speed = 5 * 9.259 # 시속 5km
+            self.speed = 13 * config.PIXEL_PER_KMPH # 시속 5km
         elif config.stage_num == 3:
-            self.speed = 7 * 9.259 # 시속 7
+            self.speed = 15 * config.PIXEL_PER_KMPH # 시속 7
         config.change_image = False
 
     def update(self):
+        if config.reset_enemy:self.reset_game()
+
         if not config.wait_round:
             if self.state == 'Idle': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
             elif self.state == 'Walk': self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
             elif self.state == 'Hit': self.frame = (self.frame + (FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) / 5) % 4
             #(f'state : {self.state}  frame : {self.frame} hitting : {self.hitting} first {self.inHitbox}')
-            print(f'lccate x : {self.tx}  // isPlayerTurn : {config.isPlayerTurn} // isServed : {config.isServed}')
+            #print(f'lccate x : {self.tx}  // isPlayerTurn : {config.isPlayerTurn} // isServed : {config.isServed}')
 
             if config.change_image:
                 self.change_enemy_image()
@@ -159,6 +167,7 @@ class Badminton_enemy:
         if group == 'enemy:ball':
             self.inHitbox = True
             config.isPlayerTurn = True
+            self.hit_sound.play()
 
     def set_target_location(self):
         if not self.tx:
@@ -180,13 +189,12 @@ class Badminton_enemy:
             if not config.isPlayerTurn: #AI가 쳤으면 pass, 플레이어가 치면 고고
                 target_x, target_y, target_angle = config.ball_x, config.ball_y, config.ball_angle
                 while True: # 4.5m, 캐릭터 중심위치까지 검사
-                    if target_y < 100: break
+                    if target_y < 100 or target_y > 1000: break
                     radianAngle = math.radians(target_angle)
                     target_x += config.ball_vel * game_framework.frame_time * math.cos(radianAngle)
                     target_y += config.ball_vel * game_framework.frame_time * math.sin(radianAngle)
                     target_angle -= 0.15
                 self.tx = clamp(550, target_x, 950)
-                self.tx = target_x
             else:
                 self.tx = 750 # 22.5m
 
@@ -207,3 +215,23 @@ class Badminton_enemy:
 
         root = SEL_AI
         self.bt = BehaviorTree(root)
+
+    def reset_game(self):
+        self.x, self.y = 750, 150
+        self.tx = 750
+        self.frame = 0
+        self.face_dir = 1
+        self.dir = 0
+        self.walking_image = load_image('Resource/luigi_walking.png')
+        self.idle_image = load_image('Resource/luigi_idle.png')
+        self.swing_image = load_image('Resource/luigi_swing.gif')
+        self.font = load_font('ENCR10B.TTF', 16)
+        self.state = 'Idle'
+        self.cooldown = 0.0
+        self.swinging = False
+        self.move_speed = 0.0
+        self.build_behavior_tree()
+        self.inHitbox = False
+        self.hitting = False
+        self.speed = 10 * config.PIXEL_PER_KMPH
+        config.reset_enemy = False

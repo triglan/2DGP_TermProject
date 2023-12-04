@@ -1,8 +1,11 @@
 # 이것은 각 상태들을 객체로 구현한 것임.
 from random import randint
 
-from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_l , \
-    draw_rectangle
+from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, \
+    SDLK_l, \
+    draw_rectangle, load_music, load_wav
+from sdl2 import SDLK_r, SDLK_z
+
 from ball import Ball
 import game_world
 import game_framework
@@ -14,8 +17,6 @@ from racket import Racket
 # state event check
 # ( state event type, event value )
 
-def l_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_l
 def right_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_RIGHT
 def right_up(e):
@@ -92,8 +93,12 @@ class Run:
     def draw(player):
         if player.face_dir == -1:
             player.walking_image.clip_composite_draw(int(player.frame) * 22, 0, 22, 25, 0, 'h', player.x, player.y, PLAYER_WID, PLAYER_HEI)
+            if player.isDash:
+                player.dash_image.clip_composite_draw(0, 0, 1920, 1080, 0, '', player.x + 40, player.y + 20, PLAYER_WID * 3, PLAYER_HEI * 2)
         else:
             player.walking_image.clip_composite_draw(int(player.frame) * 22, 0, 22, 25, 0, '', player.x, player.y, PLAYER_WID, PLAYER_HEI)
+            if player.isDash:
+                player.dash_image.clip_composite_draw(0, 0, 1920, 1080, 0, 'h', player.x - 40, player.y + 20, PLAYER_WID * 3, PLAYER_HEI * 2)
 
 
 class Swing:
@@ -118,7 +123,7 @@ class Swing:
 
     @staticmethod
     def do(player):
-        player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time / 5) % 4#너무 빨라서 애니메이션 재생 느리게 함
+        player.frame = (player.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time / 3) % 4#너무 빨라서 애니메이션 재생 느리게 함
         if player.frame >= 3:
             player.swinging = False
             config.change_ball_dir = False
@@ -138,7 +143,7 @@ class StateMachine:
         self.player = player
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Swing, l_down: Idle},
+            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Swing},
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, space_down: Swing},
             Swing: {right_down: Swing, left_down: Swing, left_up: Swing, right_up: Swing, time_out: Idle, time_out_while_running: Run},
         }
@@ -149,6 +154,8 @@ class StateMachine:
     def update(self):
         if not config.wait_round:
             self.cur_state.do(self.player)
+        else:
+            self.cur_state = Idle
 
     def handle_event(self, e):
         for check_event, next_state in self.transitions[self.cur_state].items():
@@ -173,6 +180,7 @@ class Badminton_player:
         self.walking_image = load_image('Resource/mario_walking.png')
         self.idle_image = load_image('Resource/mario_Idle.png')
         self.swing_image = load_image('Resource/mario_swing.png')
+        self.dash_image = load_image('Resource/dash.png')
         self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start()
@@ -181,6 +189,13 @@ class Badminton_player:
 
         self.player_score_font = load_font('ENCR10B.TTF', 25)
         self.player_score_color = (255, 255, 255)  # 폰트 색상 (흰색)
+        self.hit_sound = load_wav('Sounds/hit1.mp3')
+        self.hit_sound.set_volume(40)
+        self.dash_sound = load_wav('Sounds/dash.mp3')
+        self.dash_sound.set_volume(100)
+
+        self.dash_start_time = get_time()
+        self.isDash = False
 
     def swing(self):
         if not config.isServed and config.isPlayerTurn:
@@ -194,9 +209,26 @@ class Badminton_player:
     def update(self):
         if not config.wait_round:
             self.state_machine.update()
+        if self.isDash:
+            self.dash()
+
+    def dash(self):
+        if get_time() - self.dash_start_time < 0.25:
+            print(f'dash')
+            config.PLAYER_RUN_SPEED_PPS = 30 * config.PIXEL_PER_KMPH
+        else:
+            config.PLAYER_RUN_SPEED_PPS = 15 * config.PIXEL_PER_KMPH
+            self.isDash = False
 
 
     def handle_event(self, event):
+        if config.GameOver and event.type == SDL_KEYDOWN and event.key == SDLK_r:
+            self.reset_game()  # Define the reset_game function separately
+        if event.type == SDL_KEYDOWN and event.key == SDLK_z:
+            self.isDash = True
+            self.dash_start_time = get_time()
+            self.dash_sound.play()
+
         self.state_machine.handle_event(('INPUT', event))
 
     def draw(self):
@@ -217,4 +249,32 @@ class Badminton_player:
             config.change_ball_dir = True
             config.isPlayerTurn = False
             config.changeAI = True
+            self.hit_sound.play()
             print('충돌함')
+
+    def reset_game(self):
+        config.change_ball_dir = False
+        config.isPlayerTurn = True  # 플레이어가 치면 True enemy가 치면 False
+        config.isServed = False
+        config.changeAI = True
+        config.AIServeTimer = 0.0
+        config.player_score = 0
+        config.enemy_score = 0
+        config.isServed = False
+        config.player_score = 0
+        config.enemy_score = 0
+        config.stage_num = 1
+        config.change_image = False
+        config.clear_timer = 0.0
+        config.CLEARSCORE = 1
+        config.wait_round = False
+        config.PLAYER_RUN_SPEED_PPS = 20 * config.PIXEL_PER_KMPH
+        config.BALL_SPEED_PPS = 40 * config.PIXEL_PER_KMPH
+        config.BALL_ADD_VEL = 2 * config.PIXEL_PER_KMPH
+        config.reset_enemy = True
+        config.reset_ball = True
+        config.GameOver = False
+        config.newbgm = load_music('Sounds\stage1.mp3')
+        config.newbgm.set_volume(20)
+        config.newbgm.repeat_play()
+        config.clearbgm = True

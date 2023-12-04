@@ -8,3 +8,4 @@ open_canvas(1000, 600)
 game_framework.run(logo_mode)
 close_canvas()
 
+
