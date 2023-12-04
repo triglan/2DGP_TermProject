@@ -8,6 +8,7 @@ data_files = [
 
 # 데이타가 들어있는 폴더들을 지정하세요.
 data_folders = [
-    'Resource'
+    'Resource',
+    'Sounds'
 ]
 
