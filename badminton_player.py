@@ -152,10 +152,7 @@ class StateMachine:
         self.cur_state.enter(self.player, ('NONE', 0))
 
     def update(self):
-        if not config.wait_round:
-            self.cur_state.do(self.player)
-        else:
-            self.cur_state = Idle
+        self.cur_state.do(self.player)
 
     def handle_event(self, e):
         for check_event, next_state in self.transitions[self.cur_state].items():
@@ -190,9 +187,9 @@ class Badminton_player:
         self.player_score_font = load_font('ENCR10B.TTF', 25)
         self.player_score_color = (255, 255, 255)  # 폰트 색상 (흰색)
         self.hit_sound = load_wav('Sounds/hit1.mp3')
-        self.hit_sound.set_volume(40)
+        self.hit_sound.set_volume(30)
         self.dash_sound = load_wav('Sounds/dash.mp3')
-        self.dash_sound.set_volume(100)
+        self.dash_sound.set_volume(30)
 
         self.dash_start_time = get_time()
         self.isDash = False
@@ -201,14 +198,14 @@ class Badminton_player:
         if not config.isServed and config.isPlayerTurn:
             config.isServed = True
             config.isPlayerTurn = False
+            self.hit_sound.play()
             self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(30, 45))# randint(30, 50)
             game_world.add_object(self.ball)
             game_world.add_collision_pair('player:ball', None, self.ball)
             game_world.add_collision_pair('enemy:ball', None, self.ball)
 
     def update(self):
-        if not config.wait_round:
-            self.state_machine.update()
+        self.state_machine.update()
         if self.isDash:
             self.dash()
 
@@ -275,6 +272,6 @@ class Badminton_player:
         config.reset_ball = True
         config.GameOver = False
         config.newbgm = load_music('Sounds\stage1.mp3')
-        config.newbgm.set_volume(20)
+        config.newbgm.set_volume(30)
         config.newbgm.repeat_play()
         config.clearbgm = True

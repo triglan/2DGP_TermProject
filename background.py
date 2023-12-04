@@ -35,23 +35,23 @@ class special_BackGround:
         self.start_time = False
         self.win_start_time = None
         self.bgm1 = load_music('Sounds/stage1.mp3')
-        self.bgm1.set_volume(20)
+        self.bgm1.set_volume(30)
         self.bgm1.repeat_play()
 
         self.bgm2 = load_music('Sounds/stage2.mp3')
-        self.bgm2.set_volume(20)
+        self.bgm2.set_volume(30)
 
         self.bgm3 = load_music('Sounds/stage3.mp3')
-        self.bgm3.set_volume(20)
+        self.bgm3.set_volume(30)
 
         self.bgm = load_music('Sounds/Clear.mp3')
-        self.bgm.set_volume(20)
+        self.bgm.set_volume(30)
 
         self.stage_clear = load_music('Sounds/nextRound.mp3')
-        self.stage_clear.set_volume(20)
+        self.stage_clear.set_volume(30)
 
         self.game_over = load_music('Sounds/GameOver.mp3')
-        self.game_over.set_volume(20)
+        self.game_over.set_volume(30)
 
     def update(self):
         if config.player_score >= config.CLEARSCORE:
@@ -62,7 +62,7 @@ class special_BackGround:
             self.win_start_time = get_time()
             self.stage_clear.play()
             if config.stage_num >= 3:
-                self.stage_clear.set_volume(50)
+                self.stage_clear.set_volume(30)
                 config.gameClear = True
                 self.bgm.play()
 
@@ -72,7 +72,7 @@ class special_BackGround:
             config.GameOver = True
             config.isServed = True
             config.isPlayerTurn = False
-            self.stage_clear.set_volume(50)
+            self.stage_clear.set_volume(30)
             self.game_over.repeat_play()
 
 

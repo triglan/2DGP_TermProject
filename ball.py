@@ -46,6 +46,20 @@ class Ball:
         #     game_world.remove_object(self)
         #     config.reset_ball=False
 
+        if 499 < self.x and self.x < 501:#네트 검사
+            if self.y < 200:#걸리면
+                if self.dir == 1:# 우측, 즉 플레이어가 네트에 걸리면
+                    config.isPlayerTurn = False
+                    config.enemy_score += 1
+                    config.changeAI = True
+                else:
+                    config.isPlayerTurn = True
+                    config.player_score += 1
+                    config.changeAI = True
+                config.isServed = False
+                config.AIServeTimer = 0
+                game_world.remove_object(self)
+
         if self.x > 1000 - 25: # 벽과 충돌 시 죽이자 적벽에 충돌 시 패배
             self.change_direction(randint(225, 255), -1, self.velocity)
             config.changeAI = True
@@ -77,10 +91,10 @@ class Ball:
     def handle_collision(self, group, other):
         if group == 'player:ball':
             if config.change_ball_dir:
-                self.change_direction(randint(30, 50), 1, self.velocity + config.BALL_ADD_VEL)
+                self.change_direction(randint(30, 50), 1, self.velocity)
             config.changeAI = True
         if group == 'enemy:ball':
-            self.change_direction(180 - randint(30, 50), -1,  self.velocity + config.BALL_ADD_VEL)
+            self.change_direction(180 - randint(30, 50), -1,  self.velocity)
             config.changeAI = True
 
         change_ball_dir = False
