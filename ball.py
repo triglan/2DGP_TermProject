@@ -37,17 +37,35 @@ class Ball:
         elif self.dir == -1 and self.angle < 270:
             self.angle += 0.1
 
-        if self.x > 1000 - 25 or self.x < 25: # 벽과 충돌 시
-            self.change_direction(180 - self.angle, -self.dir)
-            #print(self.angle)
+        config.ball_angle = self.angle
+        config.ball_vel = self.velocity
+        config.ball_x = self.x
+        config.ball_y = self.y
+
+        if self.x > 1000 - 25: # 벽과 충돌 시 죽이자 적벽에 충돌 시 패배
+            config.isPlayerTurn = False
+            config.enemy_score += 1
+            config.changeAI = True
+            config.isServed = False
+            config.AIServeTimer = 0
+            game_world.remove_object(self)
+        elif self.x < 25: # 플레이어 벽과 충돌 시
+            config.isPlayerTurn = True
+            config.player_score += 1
+            config.changeAI = True
+            config.isServed = False
+            config.AIServeTimer = 0
+            game_world.remove_object(self)
 
         if self.y < 100:#땅에 부딪치면 삭제
             if self.x < 500:#플레이어 땅에 떨어지면
-                config.isPlayerTurn = True
-                config.enemy_score += 1
-            else:#상대 땅에 떨어지면
                 config.isPlayerTurn = False
+                config.enemy_score += 1
+                config.changeAI = True
+            else:#상대 땅에 떨어지면
+                config.isPlayerTurn = True
                 config.player_score += 1
+                config.changeAI = True
             config.isServed = False
             config.AIServeTimer = 0
             game_world.remove_object(self)
@@ -57,10 +75,7 @@ class Ball:
 
 
 
-        config.ball_angle = self.angle
-        config.ball_vel = self.velocity
-        config.ball_x = self.x
-        config.ball_y = self.y
+
 
 
 

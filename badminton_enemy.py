@@ -90,6 +90,7 @@ class Badminton_enemy:
                 self.change_enemy_image()
 
             self.find_target_location()
+
             if not config.isPlayerTurn and not config.isServed:#서브 넣기
                 config.AIServeTimer += game_framework.frame_time
                 self.state = 'Idle'
@@ -174,12 +175,14 @@ class Badminton_enemy:
             config.changeAI = False
             if not config.isPlayerTurn: #AI가 쳤으면 pass, 플레이어가 치면 고고
                 target_x, target_y, target_angle = config.ball_x, config.ball_y, config.ball_angle
-                while target_y >= 100: # 4.5m, 캐릭터 중심위치까지 검사
+                while True: # 4.5m, 캐릭터 중심위치까지 검사
+                    if target_y < 100: break
                     radianAngle = math.radians(target_angle)
-                    target_x += config.ball_vel * game_framework.frame_time * math.cos(math.radians(radianAngle))
-                    target_y += config.ball_vel * game_framework.frame_time * math.sin(math.radians(radianAngle))
+                    target_x += config.ball_vel * game_framework.frame_time * math.cos(radianAngle)
+                    target_y += config.ball_vel * game_framework.frame_time * math.sin(radianAngle)
                     target_angle -= 0.1
-                self.tx = clamp(550, target_x, 950)
+                #self.tx = clamp(550, target_x, 950)
+                self.tx = target_x
             else:
                 self.tx = 750 # 22.5m
 
