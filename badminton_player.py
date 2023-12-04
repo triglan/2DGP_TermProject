@@ -186,7 +186,7 @@ class Badminton_player:
         if not config.isServed and config.isPlayerTurn:
             config.isServed = True
             config.isPlayerTurn = False
-            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(30, 55))# randint(30, 50)
+            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(30, 45))# randint(30, 50)
             game_world.add_object(self.ball)
             game_world.add_collision_pair('player:ball', None, self.ball)
             game_world.add_collision_pair('enemy:ball', None, self.ball)

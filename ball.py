@@ -33,9 +33,9 @@ class Ball:
         self.y += self.velocity * game_framework.frame_time * math.sin(radianAngle)
         #self.velocity += game_framework.frame_time * 100
         if self.dir == 1 and self.angle > -90:
-            self.angle += -0.1
+            self.angle += -0.15
         elif self.dir == -1 and self.angle < 270:
-            self.angle += 0.1
+            self.angle += 0.15
 
         config.ball_angle = self.angle
         config.ball_vel = self.velocity
@@ -43,19 +43,9 @@ class Ball:
         config.ball_y = self.y
 
         if self.x > 1000 - 25: # 벽과 충돌 시 죽이자 적벽에 충돌 시 패배
-            config.isPlayerTurn = False
-            config.enemy_score += 1
-            config.changeAI = True
-            config.isServed = False
-            config.AIServeTimer = 0
-            game_world.remove_object(self)
+            self.change_direction(180.0 - ((self.angle - 90.0) / 2.0), -1, self.velocity * 1.1)
         elif self.x < 25: # 플레이어 벽과 충돌 시
-            config.isPlayerTurn = True
-            config.player_score += 1
-            config.changeAI = True
-            config.isServed = False
-            config.AIServeTimer = 0
-            game_world.remove_object(self)
+            self.change_direction(((180.0 - self.angle) - 90.0) / 2.0, 1, self.velocity * 1.1)
 
         if self.y < 100:#땅에 부딪치면 삭제
             if self.x < 500:#플레이어 땅에 떨어지면
@@ -74,11 +64,6 @@ class Ball:
             game_world.remove_object(self)
 
 
-
-
-
-
-
     # fill here
     def get_bb(self):
         return self.x - BALL_WID / 2, self.y - BALL_WID / 2, self.x + BALL_WID / 2, self.y + BALL_WID / 2
@@ -86,10 +71,10 @@ class Ball:
     def handle_collision(self, group, other):
         if group == 'player:ball':
             if config.change_ball_dir:
-                self.change_direction(randint(25, 55), 1, self.velocity)
+                self.change_direction(randint(30, 50), 1, self.velocity * 1.1)
             config.changeAI = True
         if group == 'enemy:ball':
-            self.change_direction(180 - randint(20, 50), -1, config.BALL_SPEED_PPS)
+            self.change_direction(180 - randint(30, 50), -1,  self.velocity * 1.1)
             config.changeAI = True
 
         change_ball_dir = False

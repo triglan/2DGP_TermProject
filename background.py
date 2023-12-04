@@ -50,7 +50,7 @@ class special_BackGround:
                 if config.stage_num == 2:
                     config.BALL_SPEED_PPS = 50 * 9.259 # 시속 50km, 적 이속도 추가 부탁
                 elif config.stage_num == 3:
-                    config.BALL_SPEED_PPS = 70 * 9.259  # 시속 70km
+                    config.BALL_SPEED_PPS = 60 * 9.259  # 시속 70km
 
 
     def draw(self):

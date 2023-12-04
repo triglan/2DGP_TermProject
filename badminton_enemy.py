@@ -23,7 +23,7 @@ from racket import Racket
 
 # player Run Speed
 PIXEL_PER_METER = (1.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 20.0  # Km / Hour
+RUN_SPEED_KMPH = 3.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -56,7 +56,7 @@ class Badminton_enemy:
         self.build_behavior_tree()
         self.inHitbox = False
         self.hitting = False
-        self.speed = RUN_SPEED_PPS
+        self.speed = 7 * 9.259
 
     def change_enemy_image(self):
         if config.stage_num == 2:
@@ -76,6 +76,10 @@ class Badminton_enemy:
         self.frame = 0
         self.face_dir = 1
         self.dir = 0
+        if config.stage_num == 2:
+            self.speed = 5 * 9.259 # 시속 5km
+        elif config.stage_num == 3:
+            self.speed = 7 * 9.259 # 시속 7
         config.change_image = False
 
     def update(self):
@@ -98,7 +102,7 @@ class Badminton_enemy:
                 if(config.AIServeTimer >= 2):
                     config.isServed = True
                     config.isPlayerTurn = True
-                    self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(120, 160), -1)
+                    self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(120, 150), -1)
                     game_world.add_object(self.ball)
                     game_world.add_collision_pair('player:ball', None, self.ball)
                     game_world.add_collision_pair('enemy:ball', None, self.ball)
@@ -180,8 +184,8 @@ class Badminton_enemy:
                     radianAngle = math.radians(target_angle)
                     target_x += config.ball_vel * game_framework.frame_time * math.cos(radianAngle)
                     target_y += config.ball_vel * game_framework.frame_time * math.sin(radianAngle)
-                    target_angle -= 0.1
-                #self.tx = clamp(550, target_x, 950)
+                    target_angle -= 0.15
+                self.tx = clamp(550, target_x, 950)
                 self.tx = target_x
             else:
                 self.tx = 750 # 22.5m
