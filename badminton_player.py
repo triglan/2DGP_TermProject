@@ -199,7 +199,7 @@ class Badminton_player:
             config.isServed = True
             config.isPlayerTurn = False
             self.hit_sound.play()
-            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(30, 45))# randint(30, 50)
+            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(25, 60))# randint(30, 50)
             game_world.add_object(self.ball)
             game_world.add_collision_pair('player:ball', None, self.ball)
             game_world.add_collision_pair('enemy:ball', None, self.ball)
@@ -263,7 +263,7 @@ class Badminton_player:
         config.stage_num = 1
         config.change_image = False
         config.clear_timer = 0.0
-        config.CLEARSCORE = 1
+        config.CLEARSCORE = 3
         config.wait_round = False
         config.PLAYER_RUN_SPEED_PPS = 20 * config.PIXEL_PER_KMPH
         config.BALL_SPEED_PPS = 40 * config.PIXEL_PER_KMPH

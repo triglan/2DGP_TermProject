@@ -57,7 +57,7 @@ class Badminton_enemy:
         self.build_behavior_tree()
         self.inHitbox = False
         self.hitting = False
-        self.speed = 10 * config.PIXEL_PER_KMPH
+        self.speed = 5 * config.PIXEL_PER_KMPH
         self.hit_sound = load_wav('Sounds/hit2.mp3')
         self.hit_sound.set_volume(40)
     def change_enemy_image(self):
@@ -83,9 +83,9 @@ class Badminton_enemy:
         self.face_dir = 1
         self.dir = 0
         if config.stage_num == 2:
-            self.speed = 13 * config.PIXEL_PER_KMPH # 시속 5km
+            self.speed = 7 * config.PIXEL_PER_KMPH # 시속 5km
         elif config.stage_num == 3:
-            self.speed = 15 * config.PIXEL_PER_KMPH # 시속 7
+            self.speed = 10 * config.PIXEL_PER_KMPH # 시속 7
         config.change_image = False
 
     def update(self):
