@@ -22,7 +22,7 @@ def handle_events():
 
 
 def update():
-    if get_time() - logo_start_time > 0:
+    if get_time() - logo_start_time > 2:
         game_framework.change_mode(play_mode)
     pass
 
