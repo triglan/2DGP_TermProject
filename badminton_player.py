@@ -233,8 +233,9 @@ class Badminton_player:
         #self.font.draw(self.x-10, self.y + 50, f'{self.ball_count:02d}', (255, 255, 0)) # 글자 출력
         draw_rectangle(*self.get_bb()) # 튜플을 풀어해쳐서 분리해서 인자로 제공 충돌체
 
-        self.player_score_font.draw(200, 50, f'Player Score : {config.player_score}', self.player_score_color)
-        self.player_score_font.draw(500, 50, f'Enemy Score : {config.enemy_score}', self.player_score_color)
+        self.player_score_font.draw(200, 70, f'Player Score : {config.player_score}', self.player_score_color)
+        self.player_score_font.draw(500, 70, f'Enemy Score : {config.enemy_score}', self.player_score_color)
+        self.player_score_font.draw(0, 25, f'<- -> : move z : dash space : serve, hit', self.player_score_color)
 
 
     # fill here
