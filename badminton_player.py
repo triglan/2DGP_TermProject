@@ -115,6 +115,7 @@ class Swing:
             return
         player.frame = 0
         player.swinging = True
+        print(f'player dir : {player.dir}')
         pass
 
     @staticmethod
@@ -137,6 +138,7 @@ class Swing:
     @staticmethod
     def draw(player):
         player.swing_image.clip_composite_draw(int(player.frame) * 21, 0, 21, 25, 0, '', player.x, player.y, PLAYER_WID, PLAYER_HEI)
+
 
 class StateMachine:
     def __init__(self, player):
