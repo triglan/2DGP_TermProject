@@ -33,9 +33,9 @@ class Ball:
         self.y += self.velocity * game_framework.frame_time * math.sin(radianAngle)
         #self.velocity += game_framework.frame_time * 100
         if self.dir == 1:
-            self.angle += -0.15
+            self.angle += -0.35
         elif self.dir == -1:
-            self.angle += 0.15
+            self.angle += 0.35
 
         config.ball_angle = self.angle
         config.ball_vel = self.velocity
@@ -64,7 +64,7 @@ class Ball:
             self.change_direction(randint(225, 255), -1, self.velocity)
             config.changeAI = True
         elif self.x < 25: # 플레이어 벽과 충돌 시
-            self.change_direction(randint(-80, -55), 1, self.velocity)
+            self.change_direction(randint(-80, -50), 1, self.velocity)
             config.changeAI = True
 
         if self.y < 100:#땅에 부딪치면 삭제
@@ -91,10 +91,10 @@ class Ball:
     def handle_collision(self, group, other):
         if group == 'player:ball':
             if config.change_ball_dir:
-                self.change_direction(randint(30, 50), 1, self.velocity)
+                self.change_direction(randint(20, 50), 1, self.velocity)
             config.changeAI = True
         if group == 'enemy:ball':
-            self.change_direction(180 - randint(30, 50), -1,  self.velocity)
+            self.change_direction(180 - randint(15, 60), -1,  self.velocity)
             config.changeAI = True
 
         change_ball_dir = False

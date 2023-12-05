@@ -110,7 +110,7 @@ class Badminton_enemy:
                 if(config.AIServeTimer >= 2):
                     config.isServed = True
                     config.isPlayerTurn = True
-                    self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(120, 150), -1)
+                    self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(115, 150), -1)
                     game_world.add_object(self.ball)
                     game_world.add_collision_pair('player:ball', None, self.ball)
                     game_world.add_collision_pair('enemy:ball', None, self.ball)
@@ -193,7 +193,7 @@ class Badminton_enemy:
                     radianAngle = math.radians(target_angle)
                     target_x += config.ball_vel * game_framework.frame_time * math.cos(radianAngle)
                     target_y += config.ball_vel * game_framework.frame_time * math.sin(radianAngle)
-                    target_angle -= 0.15
+                    target_angle -= 0.35
                 self.tx = clamp(550, target_x, 950)
             else:
                 self.tx = 750 # 22.5m

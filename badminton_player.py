@@ -199,7 +199,7 @@ class Badminton_player:
             config.isServed = True
             config.isPlayerTurn = False
             self.hit_sound.play()
-            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(25, 60))# randint(30, 50)
+            self.ball = Ball(self.x, self.y, config.BALL_SPEED_PPS, randint(25, 50))# randint(30, 50)
             game_world.add_object(self.ball)
             game_world.add_collision_pair('player:ball', None, self.ball)
             game_world.add_collision_pair('enemy:ball', None, self.ball)

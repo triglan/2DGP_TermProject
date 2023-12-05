@@ -29,7 +29,7 @@ gameClear = False
 # player Run Speed
 PLAYER_RUN_SPEED_PPS = 15 * PIXEL_PER_KMPH
 #ball Speed
-BALL_SPEED_PPS = 40 * PIXEL_PER_KMPH
+BALL_SPEED_PPS = 45 * PIXEL_PER_KMPH
 BALL_ADD_VEL = 2 * PIXEL_PER_KMPH # 2km/h
 
 newbgm = None

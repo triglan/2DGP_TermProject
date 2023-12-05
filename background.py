@@ -85,11 +85,11 @@ class special_BackGround:
                 config.isServed = False
                 config.changeAI = True
                 if config.stage_num == 2:
-                    config.BALL_SPEED_PPS = 50 * config.PIXEL_PER_KMPH # 시속 50km, 적 이속도 추가 부탁
+                    config.BALL_SPEED_PPS = 47 * config.PIXEL_PER_KMPH # 시속 50km, 적 이속도 추가 부탁
                     self.bgm2.repeat_play()
 
                 elif config.stage_num == 3:
-                    config.BALL_SPEED_PPS = 60 * config.PIXEL_PER_KMPH  # 시속 60km
+                    config.BALL_SPEED_PPS = 50 * config.PIXEL_PER_KMPH  # 시속 60km
                     self.bgm3.repeat_play()
 
 
